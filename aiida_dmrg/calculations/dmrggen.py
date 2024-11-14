@@ -41,7 +41,7 @@ class DMRGCalculation(CalcJob):
             help="the folder of a completed dmrg calculation",
         )
 
-        # spec.input("metadata.options.withmpi", valid_type=bool, default=True)
+        spec.input("metadata.options.withmpi", valid_type=bool, default=True)
 
         spec.input(
             "metadata.options.parser_name",
@@ -147,7 +147,7 @@ class DMRGCalculation(CalcJob):
         codeinfo.cmdline_params = settings.pop("cmdline", [])
         codeinfo.stdin_name = self.INPUT_FILE
         codeinfo.stdout_name = self.OUTPUT_FILE
-        # codeinfo.withmpi = self.inputs.metadata.options.withmpi
+        codeinfo.withmpi = self.inputs.metadata.options.withmpi
 
         # create calculation info
         calcinfo = CalcInfo()

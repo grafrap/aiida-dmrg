@@ -45,6 +45,7 @@ def example_dmrg(dmrg_code):
 
     builder.parameters = parameters
     builder.code = dmrg_code
+    builder.metadata.options.withmpi = True
 
     builder.metadata.options.resources = {
         "num_machines": 1,
