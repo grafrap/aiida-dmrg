@@ -182,7 +182,7 @@ class DMRGCalculation(CalcJob):
             if isinstance(value, (list, np.ndarray)):
                 param_list.append(f"--{key}={','.join(map(str, value))}")
             else:
-                param_list.append(f"--{key}={value}")
+                param_list.append(f"{value}")
         return " ".join(param_list)  
         
         
