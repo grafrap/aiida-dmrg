@@ -1,0 +1,78 @@
+---
+  name: build
+  # TODO: does julia need to be installed here?
+  on: [push, pull_request]
+  
+  jobs:
+  
+      pre-commit:
+          runs-on: ubuntu-latest
+          timeout-minutes: 15
+          steps:
+              - uses: actions/checkout@v1
+              - name: Set up Python 3.8
+                uses: actions/setup-python@v1
+                with:
+                    python-version: 3.8
+              - name: Install python dependencies
+                run: |
+                    pip install --upgrade pip
+                    pip install -e .[pre-commit]
+              - name: Run pre-commit
+                run: |
+                    pre-commit install
+                    pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
+  
+      tests:
+          runs-on: ubuntu-latest
+          timeout-minutes: 30
+          services:
+              postgres:
+                  image: postgres:12
+                  ports:
+                      - 5432:5432
+              rabbitmq:
+                  image: rabbitmq:latest
+                  ports:
+                      - 5672:5672
+          strategy:
+              matrix:
+                  python-version: ['3.8', '3.9', '3.10', '3.11']
+          steps:
+              - uses: actions/checkout@v2
+  
+              - name: Set up Python ${{ matrix.python-version }}
+                uses: actions/setup-python@v2
+                with:
+                    python-version: ${{ matrix.python-version }}
+  
+              - name: Install python dependencies
+                run: |
+                    pip install --upgrade pip
+                    pip install -e .[testing]
+  
+              - name: Run test suite
+                env:
+                    # show timings of tests
+                    PYTEST_ADDOPTS: --durations=0
+                run: |
+                    py.test --cov aiida_dmrg --cov-append .
+  
+              # note that for a matrix test that will send multiple reports to coveralls,
+              # the parallel version should be used to avoid errors.
+              - name: Send coverage to Coveralls (parallel)
+                uses: coverallsapp/github-action@v2
+                with:
+                    parallel: true
+                    flag-name: run ${{ join(matrix.*, ' - ') }}
+  
+      coveralls-finish:
+          needs: tests
+          if: ${{ always() }}
+          runs-on: ubuntu-latest
+          steps:
+              - name: Coveralls Finished
+                uses: coverallsapp/github-action@v2
+                with:
+                    parallel-finished: true
+  

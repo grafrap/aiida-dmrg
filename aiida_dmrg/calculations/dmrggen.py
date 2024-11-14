@@ -6,6 +6,7 @@ from aiida.engine import CalcJob
 from aiida.engine.processes.process_spec import CalcJobProcessSpec
 from aiida.orm import Dict, Float, RemoteData
 from aiida.plugins import DataFactory
+import numpy as np
 
 
 class DMRGCalculation(CalcJob):
@@ -40,7 +41,7 @@ class DMRGCalculation(CalcJob):
             help="the folder of a completed dmrg calculation",
         )
 
-        spec.input("metadata.options.withmpi", valid_type=bool, default=True)
+        # spec.input("metadata.options.withmpi", valid_type=bool, default=True)
 
         spec.input(
             "metadata.options.parser_name",
@@ -67,11 +68,16 @@ class DMRGCalculation(CalcJob):
         spec.default_output_node = "output_parameters"
         spec.outputs.dynamic = True
 
-        # Exit codes
+        # Exit codes TODO: update to DMRG
         spec.exit_code(
             200,
             "ERROR_NO_RETRIEVED_FOLDER",
             message="The retrieved folder data node could not be accessed.",
+        )
+        spec.exit_code(
+            201,
+            "ERROR_READING_INPUT_FILE",
+            message="The input file could not be read or misses some values.",
         )
         spec.exit_code(
             210,
@@ -89,20 +95,22 @@ class DMRGCalculation(CalcJob):
             message="The output file could not be parsed.",
         )
         spec.exit_code(
-            301,
-            "ERROR_SCF_FAILURE",
-            message="The SCF did not converge and the calculation was terminated.",
+            310,
+            "ERROR_DMRG_CONVERGENCE",
+            message="DMRG calculation failed to converge.",
         )
         spec.exit_code(
-            302,
-            "ERROR_ASYTOP",
-            message="The calculation was terminated due to a logic error in ASyTop.",
+            311,
+            "ERROR_MPS_SAVE",
+            message="Failed to save MPS state.",
         )
         spec.exit_code(
-            303,
-            "ERROR_INACCURATE_QUADRATURE_CALDSU",
-            message="The calculation was terminated due to an inaccurate quadrature in CalDSu.",
+            312,
+            "ERROR_HDF5_WRITE",
+            message="Failed to write HDF5 output files.",
         )
+        
+        
         spec.exit_code(
             390,
             "ERROR_TERMINATION",
@@ -135,7 +143,7 @@ class DMRGCalculation(CalcJob):
         codeinfo.code_uuid = self.inputs.code.uuid
         codeinfo.stdin_name = self.INPUT_FILE
         codeinfo.stdout_name = self.OUTPUT_FILE
-        codeinfo.withmpi = self.inputs.metadata.options.withmpi
+        # codeinfo.withmpi = self.inputs.metadata.options.withmpi
 
         # create calculation info
         calcinfo = CalcInfo()
@@ -164,11 +172,14 @@ class DMRGCalculation(CalcJob):
         
     @classmethod
     def _render_input_string_from_params(cls, parameters):
-        """
-        Render the input string for the DMRG calculation from the input parameters.
-        """
-        # TODO
-        return ""    
+        """Convert dictionary parameters to Julia command line arguments"""
+        param_list = []
+        for key, value in parameters.items():
+            if isinstance(value, (list, np.ndarray)):
+                param_list.append(f"--{key}={','.join(map(str, value))}")
+            else:
+                param_list.append(f"--{key}={value}")
+        return " ".join(param_list)  
         
         
         

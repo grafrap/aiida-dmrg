@@ -1,5 +1,5 @@
 """
-aiida_gaussian
+aiida_dmrg
 
 AiiDA plugin for the DMRG software
 """
