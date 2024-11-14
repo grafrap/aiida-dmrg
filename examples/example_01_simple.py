@@ -14,7 +14,7 @@ from aiida.plugins import CalculationFactory
 DMRGCalculation = CalculationFactory("dmrg")
 
 
-def example_dft(dmrg_code):
+def example_dmrg(dmrg_code):
     """Run a simple dmrg calculation"""
 
 
@@ -58,7 +58,7 @@ def example_dft(dmrg_code):
     print("Running calculation...")
     res, _node = run_get_node(builder)
 
-    print("Final scf energy: %.4f" % res["output_parameters"]["scfenergies"][-1])
+    # print("Final scf energy: %.4f" % res["output_parameters"]["scfenergies"][-1])
 
 
 @click.command("cli")
@@ -70,7 +70,7 @@ def cli(codelabel):
     except NotExistent:
         print(f"The code '{codelabel}' does not exist")
         sys.exit(1)
-    example_dft(code)
+    example_dmrg(code)
 
 
 if __name__ == "__main__":

@@ -57,7 +57,7 @@ dev = [# TODO
 "dmrg" = "aiida_dmrg.calculations:DMRGCalculation"
 
 [project.entry-points."aiida.parsers"]
-"dmrg.base" = "aiida_dmrg.parsers:DMRGBaseParser"
+"dmrg.base" = "aiida_dmrg.parsers.dmrg:DMRGBaseParser"
 
 [project.entry-points."aiida.workflows"]
 "dmrg" = "aiida_dmrg.workflows:DMRGBaseWorkChain"
@@ -71,7 +71,7 @@ license-files = ["LICENSE"]
 find = {namespaces = false}
 
 [tool.setuptools.dynamic]
-version = {attr = "aiida-dmrg.version.__version__"}
+version = {attr = "aiida_dmrg.version.__version__"}
 
 [tool.bumpver]
 current_version = "v1.0.0"

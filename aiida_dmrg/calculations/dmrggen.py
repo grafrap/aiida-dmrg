@@ -20,7 +20,7 @@ class DMRGCalculation(CalcJob):
     INPUT_FILE = "aiida.inp"
     OUTPUT_FILE = "aiida.out"
     PARENT_FOLDER_NAME = "parent_calc"
-    DEFAULT_PARSER = "dmrggen.base"
+    DEFAULT_PARSER = "dmrg.base"
 
     @classmethod
     def define(cls, spec: CalcJobProcessSpec):
@@ -130,17 +130,21 @@ class DMRGCalculation(CalcJob):
         :param folder: a aiida.common.folders.Folder subclass where
                         the plugin should put all its files.
         """
-        
+        # Get the settings dictionary, or an empty one if not specified        
+
         # Generate the input file
         input_string = DMRGCalculation._render_input_string_from_params(
             self.inputs.parameters.get_dict()
         )
 
-        # TODO
+        with open(folder.get_abs_path(self.INPUT_FILE), "w") as out_file:
+            out_file.write(input_string)
+
+        settings = self.inputs.get('settings', {}).get_dict() if 'settings' in self.inputs else {}
 
         codeinfo = CodeInfo()
-        codeinfo.cmdline_params = settings.pop("cmdline", [])
         codeinfo.code_uuid = self.inputs.code.uuid
+        codeinfo.cmdline_params = settings.pop("cmdline", [])
         codeinfo.stdin_name = self.INPUT_FILE
         codeinfo.stdout_name = self.OUTPUT_FILE
         # codeinfo.withmpi = self.inputs.metadata.options.withmpi

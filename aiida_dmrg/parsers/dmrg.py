@@ -23,7 +23,9 @@ class DMRGBaseParser(Parser):
 
     try:
       out_folder = self.retrieved
+      available_files = out_folder.base.repository.list_object_names()
       if fname not in out_folder.base.repository.list_object_names():
+        print(f"Available files: {available_files}")
         return self.exit_codes.ERROR_OUTPUT_MISSING
       log_file_string = out_folder.base.repository.get_object_content(fname)
     except NotExistent:
