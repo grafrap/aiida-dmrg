@@ -12,6 +12,7 @@ class DMRG:
             n_excitations=0,
             conserve_symmetry=False,
             print_HDF5=False,
+            maximal_energy=False,
     ):
         self.title = title
         self.comment = comment
@@ -22,6 +23,7 @@ class DMRG:
         self.n_excitations = n_excitations
         self.conserve_symmetry = conserve_symmetry
         self.print_HDF5 = print_HDF5
+        self.maximal_energy = maximal_energy
 
     @classmethod
     def from_file_handle(cls, file_handle, read_data=True):
@@ -42,6 +44,7 @@ class DMRG:
         c.n_excitations = int(line[1])
         c.conserve_symmetry = bool(int(line[2]))
         c.print_HDF5 = bool(int(line[3]))
+        c.maximal_energy = bool(int(line[4]))
 
         return c
     

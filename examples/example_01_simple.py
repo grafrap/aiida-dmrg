@@ -8,8 +8,9 @@ import ase.io
 import click
 from aiida.common import NotExistent
 from aiida.engine import run_get_node
-from aiida.orm import Code, Dict, StructureData
+from aiida.orm import Code, Dict, StructureData, load_code
 from aiida.plugins import CalculationFactory
+from collections import OrderedDict
 
 DMRGCalculation = CalculationFactory("dmrg")
 
@@ -22,22 +23,17 @@ def example_dmrg(dmrg_code):
     memory_mb = 6000
 
     # Main parameters: dmrg input file
-    parameters = Dict(
-        {
-            "link0_parameters": {
-                "%chk": "aiida.chk",
-                "%mem": "%dMB" % memory_mb,
-                "%nprocshared": num_cores,
-            },
-            "S": 1,
-            "N_sites": 8,
-            "J": 1,
-            "Sz": 0,
-            "n_excitations": 0,
-            "conserve_symmetry": False,
-            "print_HDF5": True,
-        }
-    )
+    parameters = Dict(dict=OrderedDict([
+      ("title", "DMRG calculation"),
+      ("comment", "Example calculation"),
+      ("S", 1),
+      ("N_sites", 8),
+      ("J", 2),
+      ("Sz", 0),
+      ("n_excitations", 0), 
+      ("conserve_symmetry", "false"),
+      ("print_HDF5", "true"),
+    ]))
 
     # Construct process builder
 
@@ -59,15 +55,15 @@ def example_dmrg(dmrg_code):
     print("Running calculation...")
     res, _node = run_get_node(builder)
 
-    # print("Final scf energy: %.4f" % res["output_parameters"]["scfenergies"][-1])
+    print("Calculation finished with state: ", res)
 
 
 @click.command("cli")
-@click.argument("codelabel", default="dmrg@localhost")
+@click.argument("codelabel", default="dmrg@daint-mc-julia") # TODO: change back to dmrg@localhost
 def cli(codelabel):
     """Click interface"""
     try:
-        code = Code.get_from_string(codelabel)
+        code = load_code(codelabel)
     except NotExistent:
         print(f"The code '{codelabel}' does not exist")
         sys.exit(1)

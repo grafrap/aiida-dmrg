@@ -17,8 +17,8 @@ class DMRGCalculation(CalcJob):
     TODO
     """
 
-    INPUT_FILE = "aiida.inp"
-    OUTPUT_FILE = "aiida.out"
+    INPUT_FILE = "dmrg.inp"
+    OUTPUT_FILE = "dmrg.out"
     PARENT_FOLDER_NAME = "parent_calc"
     DEFAULT_PARSER = "dmrg.base"
 
@@ -177,13 +177,26 @@ class DMRGCalculation(CalcJob):
     @classmethod
     def _render_input_string_from_params(cls, parameters):
         """Convert dictionary parameters to Julia command line arguments"""
-        param_list = []
-        for key, value in parameters.items():
-            if isinstance(value, (list, np.ndarray)):
-                param_list.append(f"--{key}={','.join(map(str, value))}")
-            else:
-                param_list.append(f"{value}")
-        return " ".join(param_list)  
+        param_order = [
+          "S",
+          "N_sites",
+          "J",
+          "Sz",
+          "n_excitations",
+          "conserve_symmetry", 
+          "print_HDF5",
+          "maximal_energy",
+        ]
+        ordered_params = []
+        for key in param_order:
+            if key in parameters:
+                value = parameters[key]
+                if isinstance(value, (list, np.ndarray)):
+                    ordered_params.append(f"{','.join(map(str, value))}")
+                else:
+                    ordered_params.append(f"{value}")
+                    
+        return " ".join(ordered_params)
         
         
         
