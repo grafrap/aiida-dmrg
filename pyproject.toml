@@ -55,12 +55,16 @@ dev = [# TODO
 
 [project.entry-points."aiida.calculations"]
 "dmrg" = "aiida_dmrg.calculations:DMRGCalculation"
+"dyncorr" = "aiida_dmrg.calculations:DynCorrCalculation"
 
 [project.entry-points."aiida.parsers"]
 "dmrg.base" = "aiida_dmrg.parsers.dmrg:DMRGBaseParser"
+"dmrg.dyncorr" = "aiida_dmrg.parsers.dyncorr:DynCorrParser"
 
 [project.entry-points."aiida.workflows"]
-"dmrg" = "aiida_dmrg.workflows:DMRGBaseWorkChain"
+"dmrg.base" = "aiida_dmrg.workchains:DMRGBaseWorkChain"
+"dyncorr" = "aiida_dmrg.workchains:DynCorrWorkChain"
+"dyncorr.base" = "aiida_dmrg.workchains:DynCorrBaseWorkChain"
 
 [tool.setuptools]
 include-package-data = true
@@ -68,7 +72,7 @@ zip-safe = false
 license-files = ["LICENSE"]
 
 [tool.setuptools.packages]
-find = {namespaces = false}
+find = {include = ["aiida_dmrg*"]}
 
 [tool.setuptools.dynamic]
 version = {attr = "aiida_dmrg.version.__version__"}

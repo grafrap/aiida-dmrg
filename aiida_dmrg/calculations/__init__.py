@@ -1,3 +1,4 @@
 from .dmrggen import DMRGCalculation
+from .dynamcor import DynCorrCalculation
 
-__all__ = ['DMRGCalculation']
+__all__ = ['DMRGCalculation, DynCorrCalculation']
