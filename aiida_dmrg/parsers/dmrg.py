@@ -39,7 +39,13 @@ class DMRGBaseParser(Parser):
 
     def _parse_log(self, log_file_string):
         """Parse the DMRG output file content"""
-        
+
+        usage_msg = "Usage: julia DMRG_template_pll_Energyextrema.jl <s> <N> <J> <Sz> <nexc> <conserve_symmetry> <print_HDF5> <maximal_energy>"
+        if usage_msg in log_file_string:
+            return self.exit_codes.ERROR_READING_INPUT_FILE
+
+        if "Check s" in log_file_string:
+            return self.exit_codes.ERROR_UNPHYISCAL_INPUT
         try:
             # Parse the arrays
             energy_list = self._extract_array(log_file_string, "List of E:")
@@ -52,6 +58,7 @@ class DMRGBaseParser(Parser):
                 total_time = time_match.group(1).strip()
             else:
                 total_time = None
+                return self.exit_codes.ERROR_OUTPUT_MISSING
 
             # Create output dictionary
             output_dict = {

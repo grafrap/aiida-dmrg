@@ -80,9 +80,14 @@ class DMRGCalculation(CalcJob):
             message="The input file could not be read or misses some values.",
         )
         spec.exit_code(
+            202,
+            "ERROR_UNPHYISCAL_INPUT",
+            message="The input file contains unphysical values (check s, N and Sz).",
+        )
+        spec.exit_code(
             210,
             "ERROR_OUTPUT_MISSING",
-            message="The retrieved folder did not contain the output file.",
+            message="There is some data missing in the output file.",
         )
         spec.exit_code(
             211,
@@ -147,6 +152,7 @@ class DMRGCalculation(CalcJob):
         codeinfo.cmdline_params = settings.pop("cmdline", [])
         codeinfo.stdin_name = self.INPUT_FILE
         codeinfo.stdout_name = self.OUTPUT_FILE
+        codeinfo.stderr_name = self.OUTPUT_FILE
         codeinfo.withmpi = self.inputs.metadata.options.withmpi
 
         # create calculation info
@@ -157,6 +163,7 @@ class DMRGCalculation(CalcJob):
         calcinfo.cmdline_params = codeinfo.cmdline_params
         calcinfo.stdin_name = self.INPUT_FILE
         calcinfo.stdout_name = self.OUTPUT_FILE
+        calcinfo.stderr_name = self.OUTPUT_FILE
         calcinfo.codes_info = [codeinfo]
         calcinfo.retrieve_list = [self.OUTPUT_FILE]
 

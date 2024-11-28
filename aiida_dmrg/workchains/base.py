@@ -1,5 +1,6 @@
 """Base workchain for DMRG calculations."""
 
+from sys import _ExitCode
 from aiida.common import AttributeDict
 from aiida.engine import (
     BaseRestartWorkChain,
@@ -28,9 +29,7 @@ class DMRGBaseWorkChain(BaseRestartWorkChain):
             cls.setup,
             while_(cls.should_run_dmrg)(
                 cls.run_dmrg,
-                cls.inspect_dmrg,
             ),
-            cls.results,
         )
 
         spec.outputs.dynamic = True
@@ -53,11 +52,21 @@ class DMRGBaseWorkChain(BaseRestartWorkChain):
         )
 
     @process_handler(priority=400, exit_codes=[
-        DMRGCalculation.exit_codes.ERROR_TODO,
+        DMRGCalculation.exit_codes.ERROR_UNPHYISCAL_INPUT,
+        DMRGCalculation.exit_codes.ERROR_TERMINATION,
     ])
-    def inspect_dmrg(self):
+    def inspect_dmrg(self, node):
         """Verify that the DMRG calculation finished successfully."""
-        pass
+        
+        try:
+            if not node.is_finished_ok:
+                self.report(f"calculation failed with exit status {node.exit_status}")
+                return self.exit_codes.ERROR_TERMINATION
+        except Exception as e:
+            self.report(f"calculation failed with exception: {e}")
+            return self.exit_codes.ERROR_UNPHYISCAL_INPUT
+
+        return _ExitCode(0)
     
     # TODO: implement handling of errors
 

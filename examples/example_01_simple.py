@@ -26,13 +26,14 @@ def example_dmrg(dmrg_code):
     parameters = Dict(dict=OrderedDict([
       ("title", "DMRG calculation"),
       ("comment", "Example calculation"),
-      ("S", 1),
+      ("S", 0.5),
       ("N_sites", 8),
       ("J", 2),
       ("Sz", 0),
-      ("n_excitations", 0), 
+      ("n_excitations", 1), 
       ("conserve_symmetry", "false"),
       ("print_HDF5", "true"),
+      ("maximal_energy", "true"),
     ]))
 
     # Construct process builder
