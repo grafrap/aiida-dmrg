@@ -20,16 +20,24 @@ def example_dmrg(dmrg_code):
 
 
     num_cores = 2
-    memory_mb = 6000
+    memory_mb = 20000
+
+    N = 10
+    val1, val2 = 23, 38
+
+    matrix = [[0 for _ in range(N)] for _ in range(N)]
+
+    for i in range(N-1):
+        matrix[i][i+1] = val1 if i % 2 == 0 else val2
+        matrix[i+1][i] = val1 if i % 2 == 0 else val2
 
     # Main parameters: dmrg input file
     parameters = Dict(dict=OrderedDict([
       ("title", "DMRG calculation"),
       ("comment", "Example calculation"),
-      ("S", 0.5),
-      ("N_sites", 8),
-      ("J", 2),
-      ("Sz", 0),
+      ("S", 1),
+      ("N_sites", N),
+      ("J", matrix),
       ("n_excitations", 1), 
       ("conserve_symmetry", "false"),
       ("print_HDF5", "true"),
@@ -51,7 +59,7 @@ def example_dmrg(dmrg_code):
 
     # Should ask for extra +25% extra memory
     builder.metadata.options.max_memory_kb = int(1.25 * memory_mb) * 1024
-    builder.metadata.options.max_wallclock_seconds = 5 * 60
+    builder.metadata.options.max_wallclock_seconds = 20 * 60
 
     print("Running calculation...")
     res, _node = run_get_node(builder)

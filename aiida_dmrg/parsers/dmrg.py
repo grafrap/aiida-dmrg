@@ -40,12 +40,23 @@ class DMRGBaseParser(Parser):
     def _parse_log(self, log_file_string):
         """Parse the DMRG output file content"""
 
-        usage_msg = "Usage: julia DMRG_template_pll_Energyextrema.jl <s> <N> <J> <Sz> <nexc> <conserve_symmetry> <print_HDF5> <maximal_energy>"
-        if usage_msg in log_file_string:
-            return self.exit_codes.ERROR_READING_INPUT_FILE
+        error_messages = {
+            "Usage: julia DMRG_template_pll_Energyextrema.jl": self.exit_codes.ERROR_READING_INPUT_FILE,
+            "Failed to read from stdin": self.exit_codes.ERROR_READING_INPUT_FILE,
+            "Check s": self.exit_codes.ERROR_UNPHYISCAL_INPUT,
+            "J matrix not properly closed with ']'.": self.exit_codes.ERROR_J_VALUE,
+            "All rows in J matrix must have the same number of columns.": self.exit_codes.ERROR_J_VALUE,
+            "Failed to parse J": self.exit_codes.ERROR_J_VALUE,
+            "Sz must be provided when conserve_symmetry is true.": self.exit_codes.ERROR_UNPHYISCAL_INPUT,
+            "J matrix dimensions": self.exit_codes.ERROR_J_VALUE,
+            "J must either be a Float64 scalar or a": self.exit_codes.ERROR_J_VALUE,
+        }
 
-        if "Check s" in log_file_string:
-            return self.exit_codes.ERROR_UNPHYISCAL_INPUT
+        # Check for error messages
+        for message, exit_code in error_messages.items():
+            if message in log_file_string:
+                return exit_code
+        
         try:
             # Parse the arrays
             energy_list = self._extract_array(log_file_string, "List of E:")
@@ -71,7 +82,7 @@ class DMRGBaseParser(Parser):
             # Store results in output nodes
             self.out('output_parameters', Dict(dict=output_dict))
             
-            return None
+            return self._final_checks_on_log(log_file_string)
 
         except Exception as exc:
             print(f"Error during parsing: {str(exc)}")
@@ -106,6 +117,9 @@ class DMRGBaseParser(Parser):
         """Perform final checks on the output file"""
         
         if "Error" in log_file_string:
+            return self.exit_codes.ERROR_CALCULATION_FAILED
+        
+        if "ERROR" in log_file_string:
             return self.exit_codes.ERROR_CALCULATION_FAILED
         
         return None

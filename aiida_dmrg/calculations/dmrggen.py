@@ -60,7 +60,7 @@ class DMRGCalculation(CalcJob):
 
         spec.output(
             "Hamiltonian_sites",
-            valid_type=Dict, # TODO: we want to have HDF5Data here
+            valid_type=Dict,
             required=False,
             help="Sites and Hamiltonian of the system for dynamical correlator",
         )
@@ -68,7 +68,6 @@ class DMRGCalculation(CalcJob):
         spec.default_output_node = "output_parameters"
         spec.outputs.dynamic = True
 
-        # Exit codes TODO: update to DMRG
         spec.exit_code(
             200,
             "ERROR_NO_RETRIEVED_FOLDER",
@@ -85,6 +84,11 @@ class DMRGCalculation(CalcJob):
             message="The input file contains unphysical values (check s, N and Sz).",
         )
         spec.exit_code(
+            203,
+            "ERROR_J_VALUE",
+            message="The J value / matrix in the input file is not correct.",
+        )
+        spec.exit_code(
             210,
             "ERROR_OUTPUT_MISSING",
             message="There is some data missing in the output file.",
@@ -95,37 +99,16 @@ class DMRGCalculation(CalcJob):
             message="The retrieved output log could not be read.",
         )
         spec.exit_code(
-            220,
-            "ERROR_OUTPUT_PARSING",
-            message="The output file could not be parsed.",
-        )
-        spec.exit_code(
-            310,
-            "ERROR_DMRG_CONVERGENCE",
-            message="DMRG calculation failed to converge.",
-        )
-        spec.exit_code(
-            311,
-            "ERROR_MPS_SAVE",
-            message="Failed to save MPS state.",
-        )
-        spec.exit_code(
             312,
             "ERROR_HDF5_WRITE",
             message="Failed to write HDF5 output files.",
         )
-        
-        
         spec.exit_code(
             390,
             "ERROR_TERMINATION",
             message="The calculation was terminated due to an error.",
         )
-        spec.exit_code(
-            391,
-            "ERROR_NO_NORMAL_TERMINATION",
-            message="The log did not contain 'Normal termination' (probably out of time).",
-        )
+
 
     def prepare_for_submission(self, folder):
         """
@@ -198,10 +181,7 @@ class DMRGCalculation(CalcJob):
         for key in param_order:
             if key in parameters:
                 value = parameters[key]
-                if isinstance(value, (list, np.ndarray)):
-                    ordered_params.append(f"{','.join(map(str, value))}")
-                else:
-                    ordered_params.append(f"{value}")
+                ordered_params.append(f"{value}")
                     
         return " ".join(ordered_params)
         
