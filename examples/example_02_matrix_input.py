@@ -38,7 +38,7 @@ def example_dmrg(dmrg_code):
       ("S", 1),
       ("N_sites", N),
       ("J", matrix),
-      ("n_excitations", 1), 
+      ("n_excitations", 0), 
       ("conserve_symmetry", "false"),
       ("print_HDF5", "true"),
       ("maximal_energy", "true"),

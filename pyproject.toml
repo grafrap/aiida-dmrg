@@ -59,12 +59,11 @@ dev = [# TODO
 
 [project.entry-points."aiida.parsers"]
 "dmrg.base" = "aiida_dmrg.parsers.dmrg:DMRGBaseParser"
-"dmrg.dyncorr" = "aiida_dmrg.parsers.dyncorr:DynCorrParser"
+"dyncorr" = "aiida_dmrg.parsers.dyncorr:DynCorrParser"
 
 [project.entry-points."aiida.workflows"]
 "dmrg.base" = "aiida_dmrg.workchains:DMRGBaseWorkChain"
 "dyncorr" = "aiida_dmrg.workchains:DynCorrWorkChain"
-"dyncorr.base" = "aiida_dmrg.workchains:DynCorrBaseWorkChain"
 
 [tool.setuptools]
 include-package-data = true

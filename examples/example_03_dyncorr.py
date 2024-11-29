@@ -10,7 +10,7 @@ from aiida.engine import run_get_node
 from aiida.orm import Code, Dict, load_code
 from aiida.plugins import CalculationFactory, WorkflowFactory
 
-DynCorrWorkChain = WorkflowFactory('dyncorr.base')
+DynCorrWorkChain = WorkflowFactory('dyncorr')
 
 def example_dyncorr(code):
     """Run DMRG followed by dynamic correlator calculation"""
@@ -31,44 +31,39 @@ def example_dyncorr(code):
         ("print_HDF5", "true"),
     ]))
 
+    dyncorr_parameters = Dict(dict=OrderedDict([
+        ("title", "Dynamic correlator calculation"),
+        ("comment", "Example calculation"),
+        ("N_max", 200),
+    ]))
+
+    builder = DynCorrWorkChain.get_builder()
+
     # Build workflow inputs
-    inputs = {
-        'dmrg': {
-            'parameters': dmrg_parameters,
-            'code': code,
-            'metadata': {
-                'options': {
-                    'withmpi': True,
-                    'resources': {
-                        'num_machines': 1,
-                        'tot_num_mpiprocs': num_cores,
-                    },
-                    'max_memory_kb': int(1.25 * memory_mb) * 1024,
-                    'max_wallclock_seconds': 5 * 60,
-                }
-            }
-        },
-        'dyncorr': {
-            'code': code,  # Using same code for both calculations
-            'metadata': {
-                'options': {
-                    'withmpi': True,
-                    'resources': {
-                        'num_machines': 1,
-                        'tot_num_mpiprocs': num_cores,
-                    },
-                    'max_memory_kb': int(1.25 * memory_mb) * 1024,
-                    'max_wallclock_seconds': 5 * 60,
-                }
-            }
-        }
+    builder.dmrg.dmrg.parameters = dmrg_parameters
+    builder.dmrg.dmrg.code = code
+    builder.dmrg.dmrg.metadata.options.withmpi = True
+    builder.dmrg.dmrg.metadata.options.resources = {
+        "num_machines": 1,
+        "tot_num_mpiprocs": num_cores,
     }
+    builder.dmrg.dmrg.metadata.options.max_memory_kb = int(1.25 * memory_mb) * 1024
+    builder.dmrg.dmrg.metadata.options.max_wallclock_seconds = 5 * 60
+    
+    builder.parameters = dyncorr_parameters
+    builder.code = code
+    builder.metadata.options.resources = {
+        "num_machines": 1,
+        "tot_num_mpiprocs": num_cores,
+    }
+    builder.metadata.options.max_memory_kb = int(1.25 * memory_mb) * 1024
+    builder.metadata.options.max_wallclock_seconds = 5 * 60
 
     print("Running calculations...")
-    res, node = run_get_node(DynCorrWorkChain, **inputs)
+    res, node = run_get_node(builder)
 
-    print("DMRG results: ", res.dmrg_output_parameters)
-    print("Dynamic correlator results: ", res.dyncorr_output_parameters)
+    print("DMRG results: ", res['dmrg_output_parameters'])
+    print("Dynamic correlator results: ", res['dyncorr_output_parameters'])
 
 
 @click.command("cli")

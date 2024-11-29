@@ -1,6 +1,5 @@
 """Base workchain for DMRG calculations."""
 
-from sys import _ExitCode
 from aiida.common import AttributeDict
 from aiida.engine import (
     BaseRestartWorkChain,
@@ -8,7 +7,7 @@ from aiida.engine import (
     process_handler,
     while_,
 )
-from aiida.orm import Dict
+from aiida.orm import Dict, RemoteData
 from aiida.plugins import CalculationFactory, DataFactory
 
 DMRGCalculation = CalculationFactory('dmrg')
@@ -27,18 +26,15 @@ class DMRGBaseWorkChain(BaseRestartWorkChain):
 
         spec.outline(
             cls.setup,
-            while_(cls.should_run_dmrg)(
-                cls.run_dmrg,
-            ),
+            cls.run_dmrg,
+            cls.store_remote_folder,
         )
+        
+
+        spec.output('remote_folder', valid_type=RemoteData, required=True)
 
         spec.outputs.dynamic = True
 
-        spec.exit_code(
-            399,
-            "ERROR_UNRECOVERABLE_TERMINATION",
-            message="The calculation failed with an unrecoverable error.",
-        )
 
     def setup(self):
         """Call the `setup` and create the inputs dictionary in `self.ctx.inputs`.
@@ -47,9 +43,8 @@ class DMRGBaseWorkChain(BaseRestartWorkChain):
         submit the calculations in the internal loop.
         """
         super().setup()
-        self.ctx.inputs = AttributeDict(
-            self.exposed_inputs(DMRGCalculation, 'dmrg')
-        )
+        self.ctx.inputs = self.exposed_inputs(DMRGCalculation, 'dmrg')
+        self.ctx.remote_folder = None
 
     @process_handler(priority=400, exit_codes=[
         DMRGCalculation.exit_codes.ERROR_UNPHYISCAL_INPUT,
@@ -66,29 +61,17 @@ class DMRGBaseWorkChain(BaseRestartWorkChain):
             self.report(f"calculation failed with exception: {e}")
             return self.exit_codes.ERROR_UNPHYISCAL_INPUT
 
-        return _ExitCode(0)
+        return ProcessHandlerReport(True)
     
-    # TODO: implement handling of errors
-
-    def results(self):
-        """Overload the method such that each dynamic output of the DMRG calculation is set."""
-        node = self.ctx.children[self.ctx.iteration - 1]
-
-        # We check the `is_finished` attribute of the work chain and not the successfulness of the last process
-        # because the error handlers in the last iteration can have qualified a "failed" process as satisfactory
-        # for the outcome of the work chain and so have marked it as `is_finished=True`.
-        max_iterations = self.inputs.max_iterations.value  # type: ignore[union-attr]
-        if not self.ctx.is_finished and self.ctx.iteration >= max_iterations:
-            self.report(
-                f"reached the maximum number of iterations {max_iterations}: "
-                f"last ran {self.ctx.process_name}<{node.pk}>"
-            )
-            return (
-                self.exit_codes.ERROR_MAXIMUM_ITERATIONS_EXCEEDED
-            )  # pylint: disable=no-member
-
-        self.report(f"The work chain completed after {self.ctx.iteration} iterations")
-
-        # self.out_many({key: node.outputs[key] for key in node.outputs})
-
-        return None
+    def run_dmrg(self):
+        """Run the DMRG calculation."""
+        inputs = self.ctx.inputs
+        return self.submit(DMRGCalculation, **inputs)
+    
+    def store_remote_folder(self):
+        """Store the remote folder output."""
+        if self.ctx.dmrg and self.ctx.dmrg.outputs.remote_folder:
+            self.out('remote_folder', self.ctx.dmrg.outputs.remote_folder)
+        else:
+            self.report('DMRG workchain did not provide a remote_folder.')
+            return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
