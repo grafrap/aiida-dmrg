@@ -19,10 +19,14 @@ class DynCorrWorkChain(WorkChain):
 
         # inputs
         spec.input("parent_calc_folder", valid_type=RemoteData, required=False, help="DMRG calculation folder")
-        spec.expose_inputs(DMRGBaseWorkChain, namespace='dmrg')
-        spec.expose_inputs(DynCorrCalculation, namespace='dyncorr')
+        spec.input("dmrg_params", valid_type=Dict, help="DMRG parameters")
+        spec.input("dyncorr_params", valid_type=Dict, help="Dynamic Correlator parameters")
+        spec.input_namespace("options", valid_type=int, non_db=True, help="Define options for the calculation: walltime, memory, CPUs, etc.")
+        # spec.expose_inputs(DMRGBaseWorkChain, namespace='dmrg')
+        # spec.expose_inputs(DynCorrCalculation, namespace='dyncorr')
 
         spec.outline(
+            # cls.setup,
             cls.run_dmrg,
             cls.run_dyncorr,
             cls.finalize
@@ -37,26 +41,33 @@ class DynCorrWorkChain(WorkChain):
 
     def run_dmrg(self):
         self.report("Running DMRG calculation...")
-        inputs = {**self.exposed_inputs(DMRGBaseWorkChain, 'dmrg')}
-        running = self.submit(DMRGBaseWorkChain, **inputs)
-        return ToContext(dmrg=running)
+        builder = DMRGBaseWorkChain.get_builder()
+        builder.dmrg.code = self.inputs.dmrg_code
+        builder.dmrg.metadata.options = self.inputs.options["dmrg"]
+        builder.dmrg.parameters = self.inputs.dmrg_params
+        # builder.dmrg.parent_calc_folder = self.inputs.parent_calc_folder
+
+        dmrg_running = self.submit(builder)
+        self.to_context(dmrg=dmrg_running)
 
     def run_dyncorr(self):
         self.report("Running Dynamic Correlator calculation...")
-        ctx = self.ctx
-        if not ctx.dmrg.is_finished_ok:
+        # if not common_utils.check_if_calc_ok(self.ctx.dmrg): # we don't have this function
+        #     self.report("DMRG calculation did not finish successfully.")
+        #     return self.exit_codes.ERROR_DMRG_FAILED
+        if not self.ctx.dmrg.is_finished_ok:
             self.report("DMRG calculation did not finish successfully.")
             return self.exit_codes.ERROR_DMRG_FAILED
+        builder = DynCorrCalculation.get_builder()
+        builder.dyncorr_code = self.inputs.dyncorr_code
+        builder.options = self.inputs.options
+        builder.parameters = self.inputs.dyncorr_params
+        builder.parent_calc_folder = self.ctx.dmrg.outputs.remote_folder
+        builder.options = Dict(self.inputs.options["dyncorr"])
 
-        self.inputs.dyncorr.dmrg_folder = ctx.dmrg.outputs.remote_folder
-        dyncorr_inputs = {
-            'parameters': ctx.dmrg.inputs.parameters,
-            'parent_calc_folder': dmrg_folder,
-            **self.exposed_inputs(DynCorrCalculation, 'dyncorr')
-        }
+        dyncorr_running = self.submit(builder)
 
-        running = self.submit(DynCorrCalculation, **dyncorr_inputs)
-        return ToContext(dyncorr=running)
+        return ToContext(dyncorr=dyncorr_running)
 
     def finalize(self):
         ctx = self.ctx

@@ -16,7 +16,7 @@ def example_dyncorr(code):
     """Run DMRG followed by dynamic correlator calculation"""
     
     num_cores = 2
-    memory_mb = 6000
+    memory_mb = 30000
 
     # DMRG parameters
     dmrg_parameters = Dict(dict=OrderedDict([
@@ -39,32 +39,40 @@ def example_dyncorr(code):
 
     builder = DynCorrWorkChain.get_builder()
 
-    # Build workflow inputs
-    builder.dmrg.dmrg.parameters = dmrg_parameters
-    builder.dmrg.dmrg.code = code
-    builder.dmrg.dmrg.metadata.options.withmpi = True
-    builder.dmrg.dmrg.metadata.options.resources = {
-        "num_machines": 1,
-        "tot_num_mpiprocs": num_cores,
-    }
-    builder.dmrg.dmrg.metadata.options.max_memory_kb = int(1.25 * memory_mb) * 1024
-    builder.dmrg.dmrg.metadata.options.max_wallclock_seconds = 5 * 60
-    
-    builder.dyncorr.parameters = dyncorr_parameters
-    builder.dyncorr.code = code
-    builder.dyncorr.metadata.options.resources = {
-        "num_machines": 1,
-    }
     builder.dmrg_code = code
-    builder.dyncorr_code = code
-    builder.dyncorr.metadata.options.max_memory_kb = int(1.25 * memory_mb) * 1024
-    builder.dyncorr.metadata.options.max_wallclock_seconds = 5 * 60
+    builder.dyncorr_code = load_code("dyncorr@daint-mc-julia")
+    builder.dmrg_params = dmrg_parameters
+    builder.dyncorr_params = dyncorr_parameters
+    builder.options = {
+        "dmrg": {
+            "withmpi": True,
+            "resources": {
+                "num_machines": 1,
+                "num_mpiprocs_per_machine": num_cores,
+                "num_cores_per_mpiproc": 1,
+            },
+            "max_wallclock_seconds": 3600,
+            "max_memory_kb": memory_mb * 1024,
+        },
+        "dyncorr": {
+            "withmpi": False,
+            "resources": {
+                "num_machines": 1,
+                "num_mpiprocs_per_machine": 1,
+                "num_cores_per_mpiproc": num_cores,
+            },
+            "max_wallclock_seconds": 3600,
+            "max_memory_kb": memory_mb * 1024,
+        },            
+    }
+    # builder.options = Dict(dict=options_dict)
 
     print("Running calculations...")
     res, node = run_get_node(builder)
 
     print("DMRG results: ", res['dmrg_output_parameters'])
     print("Dynamic correlator results: ", res['dyncorr_output_parameters'])
+    assert node.is_finished_ok
 
 
 @click.command("cli")
