@@ -16,9 +16,9 @@ class DynCorrCalculation(CalcJob):
     def define(cls, spec):
         super().define(spec)
         spec.input("parameters", valid_type=Dict, required=True, help="Input parameters for DynCorr calculation")
-        spec.input("dmrg_folder", valid_type=RemoteData, required=True, help="Folder of the completed DMRG calculation")
         spec.input("metadata.options.parser_name", valid_type=str, default=cls.DEFAULT_PARSER, non_db=True)
-
+        spec.input("parent_calc_folder", valid_type=RemoteData, help="Parent calculation folder")
+        
         spec.output("output_matrix", valid_type=Dict, required=True, help="Dynamic correlator matrix")
         spec.output("time_measurement", valid_type=Dict, required=True, help="Time measurements")
 
@@ -33,7 +33,7 @@ class DynCorrCalculation(CalcJob):
 
         codeinfo = CodeInfo()
         codeinfo.code_uuid = self.inputs.code.uuid
-        codeinfo.cmdline_params = settings.pop('cmdline', [])
+        # codeinfo.cmdline_params = settings.pop('cmdline', [])
         codeinfo.stdin_name = self.INPUT_FILE
         codeinfo.stdout_name = self.OUTPUT_FILE
         codeinfo.stderr_name = self.OUTPUT_FILE
@@ -51,14 +51,14 @@ class DynCorrCalculation(CalcJob):
 
         calcinfo.remote_symlink_list = []
         calcinfo.remote_copy_list = []
-        if "parent_folder" in self.inputs:
-            calcinfo.remote_copy_list.append(
-                (
-                    self.inputs.parent_folder.computer.uuid,
-                    self.inputs.parent_folder.get_remote_path(),
-                    self.PARENT_FOLDER_NAME,
-                )
-            )
+        if "parent_calc_folder" in self.inputs:
+            comp_uuid = self.inputs.parent_calc_folder.computer.uuid
+            remote_path = self.inputs.parent_calc_folder.get_remote_path()
+            copy_info = (comp_uuid, remote_path, "parent_calc_folder/")
+            if self.inputs.code.computer.uuid == comp_uuid:
+                calcinfo.remote_symlink_list.append(copy_info)
+            else:
+                calcinfo.remote_copy_list.append(copy_info)
 
         return calcinfo
     

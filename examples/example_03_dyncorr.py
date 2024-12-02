@@ -50,14 +50,15 @@ def example_dyncorr(code):
     builder.dmrg.dmrg.metadata.options.max_memory_kb = int(1.25 * memory_mb) * 1024
     builder.dmrg.dmrg.metadata.options.max_wallclock_seconds = 5 * 60
     
-    builder.parameters = dyncorr_parameters
-    builder.code = code
-    builder.metadata.options.resources = {
+    builder.dyncorr.parameters = dyncorr_parameters
+    builder.dyncorr.code = code
+    builder.dyncorr.metadata.options.resources = {
         "num_machines": 1,
-        "tot_num_mpiprocs": num_cores,
     }
-    builder.metadata.options.max_memory_kb = int(1.25 * memory_mb) * 1024
-    builder.metadata.options.max_wallclock_seconds = 5 * 60
+    builder.dmrg_code = code
+    builder.dyncorr_code = code
+    builder.dyncorr.metadata.options.max_memory_kb = int(1.25 * memory_mb) * 1024
+    builder.dyncorr.metadata.options.max_wallclock_seconds = 5 * 60
 
     print("Running calculations...")
     res, node = run_get_node(builder)

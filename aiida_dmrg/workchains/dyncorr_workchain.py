@@ -1,6 +1,6 @@
 # DYNCORR_WORKCHAIN.PY
 from aiida.engine import WorkChain, ToContext
-from aiida.orm import Dict, RemoteData
+from aiida.orm import Dict, RemoteData, Code
 from aiida.plugins import CalculationFactory, WorkflowFactory
 
 DMRGBaseWorkChain = WorkflowFactory('dmrg.base')
@@ -12,8 +12,15 @@ class DynCorrWorkChain(WorkChain):
     @classmethod
     def define(cls, spec):
         super().define(spec)
+
+        # codes
+        spec.input("dmrg_code", valid_type=Code, help="The `dmrg` code.")
+        spec.input("dyncorr_code", valid_type=Code, help="The `dyncorr` code.")
+
+        # inputs
+        spec.input("parent_calc_folder", valid_type=RemoteData, required=False, help="DMRG calculation folder")
         spec.expose_inputs(DMRGBaseWorkChain, namespace='dmrg')
-        spec.expose_inputs(DynCorrCalculation, exclude=('parameters', 'dmrg_folder'))
+        spec.expose_inputs(DynCorrCalculation, namespace='dyncorr')
 
         spec.outline(
             cls.run_dmrg,
@@ -23,26 +30,29 @@ class DynCorrWorkChain(WorkChain):
 
         spec.output("time_measurement", valid_type=Dict)
         spec.output("output_matrix", valid_type=Dict)
+        spec.outputs.dynamic = True
 
         spec.exit_code(400, "ERROR_DMRG_FAILED", message="DMRG calculation failed.")
         spec.exit_code(401, "ERROR_DYNCCORR_FAILED", message="Dynamic Correlator calculation failed.")
 
     def run_dmrg(self):
+        self.report("Running DMRG calculation...")
         inputs = {**self.exposed_inputs(DMRGBaseWorkChain, 'dmrg')}
         running = self.submit(DMRGBaseWorkChain, **inputs)
         return ToContext(dmrg=running)
 
     def run_dyncorr(self):
+        self.report("Running Dynamic Correlator calculation...")
         ctx = self.ctx
         if not ctx.dmrg.is_finished_ok:
             self.report("DMRG calculation did not finish successfully.")
             return self.exit_codes.ERROR_DMRG_FAILED
 
-        dmrg_folder = ctx.dmrg.outputs.remote_folder
+        self.inputs.dyncorr.dmrg_folder = ctx.dmrg.outputs.remote_folder
         dyncorr_inputs = {
             'parameters': ctx.dmrg.inputs.parameters,
-            'dmrg_folder': dmrg_folder,
-            **self.exposed_inputs(DynCorrCalculation)
+            'parent_calc_folder': dmrg_folder,
+            **self.exposed_inputs(DynCorrCalculation, 'dyncorr')
         }
 
         running = self.submit(DynCorrCalculation, **dyncorr_inputs)
