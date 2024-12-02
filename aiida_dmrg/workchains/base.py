@@ -72,14 +72,16 @@ class DMRGBaseWorkChain(BaseRestartWorkChain):
         if self.ctx.remote_folder is not None:
           builder.parent_calc_folder = self.ctx.remote_folder
         builder.metadata.options = self.ctx.inputs.metadata.options
-
-        self.ctx.dmrg = self.to_context(dmrg=self.submit(builder))
+        self.report("Submitting DMRG calculation.")
+        self.to_context(dmrg=self.submit(builder))
 
     def finalize(self):
         """Finalize the workchain."""
+        self.ctx.remote_folder = self.ctx.dmrg.outputs.remote_folder
         self.out('remote_folder', self.ctx.remote_folder)
+
         self.report('DMRG workchain completed successfully')
-        return AttributeDict({
-            'output_parameters': self.ctx.dmrg.outputs.output_parameters,
-            'remote_folder': self.ctx.remote_folder,
-        })
+        # return AttributeDict({
+        #     'output_parameters': self.ctx.dmrg.outputs.output_parameters,
+        #     'remote_folder': self.ctx.remote_folder,
+        # })

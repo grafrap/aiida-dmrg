@@ -29,18 +29,30 @@ class DynCorrCalculation(CalcJob):
         input_params = self.inputs.parameters.get_dict()
 
         input_string = self._render_input(input_params)
-        folder.write_file(self.INPUT_FILE, input_string)
+        with open(folder.get_abs_path(self.INPUT_FILE), "w") as out_file:
+            out_file.write(input_string)
+
+        settings = self.inputs.get('settings', {}).get_dict() if 'settings' in self.inputs else {}
 
         codeinfo = CodeInfo()
         codeinfo.code_uuid = self.inputs.code.uuid
-        # codeinfo.cmdline_params = settings.pop('cmdline', [])
+        codeinfo.cmdline_params = settings.pop('cmdline', [])
         codeinfo.stdin_name = self.INPUT_FILE
         codeinfo.stdout_name = self.OUTPUT_FILE
         codeinfo.stderr_name = self.OUTPUT_FILE
         codeinfo.withmpi = False
 
         calcinfo = CalcInfo()
-        calcinfo.local_copy_list = [(self.inputs.parent_calc_folder.uuid,)]
+        calcinfo.local_copy_list = []  # Initialize as empty
+
+        # Correctly format the local_copy_list with three elements per tuple
+        if "parent_calc_folder" in self.inputs:
+            parent_folder = self.inputs.parent_calc_folder
+            comp_uuid = parent_folder.computer.uuid
+            remote_path = parent_folder.get_remote_path()
+            destination = "parent_calc_folder/"
+            calcinfo.local_copy_list.append((remote_path, destination, ''))
+
         calcinfo.uuid = self.uuid
         calcinfo.cmdline_params = codeinfo.cmdline_params
         calcinfo.stdin_name = self.INPUT_FILE
@@ -60,8 +72,10 @@ class DynCorrCalculation(CalcJob):
             else:
                 calcinfo.remote_copy_list.append(copy_info)
 
+        calcinfo.retrieve_list.append("parent_calc_folder/")
+
         return calcinfo
-    
+
     def _render_input(self, input_params):
         """Render the input file."""
         param_order = [
@@ -71,6 +85,7 @@ class DynCorrCalculation(CalcJob):
         ordered_params = []
         for key in param_order:
             if key in input_params:
-                ordered_params.append(key)
+                value = input_params[key]
+                ordered_params.append(f"{value}")
 
         return " ".join(ordered_params)

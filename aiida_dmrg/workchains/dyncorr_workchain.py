@@ -63,7 +63,7 @@ class DynCorrWorkChain(WorkChain):
         builder.parent_calc_folder = self.ctx.dmrg.outputs.remote_folder
         builder.code = self.inputs.dyncorr_code
         builder.parameters = self.inputs.dyncorr_params
-        builder.options = self.inputs.options["dyncorr"]
+        builder.metadata.options = self.inputs.options["dyncorr"]
 
         dyncorr_running = self.submit(builder)
         self.to_context(dyncorr=dyncorr_running)
