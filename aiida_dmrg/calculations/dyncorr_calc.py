@@ -40,7 +40,7 @@ class DynCorrCalculation(CalcJob):
         codeinfo.withmpi = False
 
         calcinfo = CalcInfo()
-        calcinfo.local_copy_list = [(self.inputs.dmrg_folder.uuid,)]
+        calcinfo.local_copy_list = [(self.inputs.parent_calc_folder.uuid,)]
         calcinfo.uuid = self.uuid
         calcinfo.cmdline_params = codeinfo.cmdline_params
         calcinfo.stdin_name = self.INPUT_FILE

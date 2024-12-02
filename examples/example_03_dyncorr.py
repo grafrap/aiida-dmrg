@@ -29,6 +29,7 @@ def example_dyncorr(code):
         ("n_excitations", 0),
         ("conserve_symmetry", "false"),
         ("print_HDF5", "true"),
+        ("maximal_energy", "true"),
     ]))
 
     dyncorr_parameters = Dict(dict=OrderedDict([
@@ -70,8 +71,6 @@ def example_dyncorr(code):
     print("Running calculations...")
     res, node = run_get_node(builder)
 
-    print("DMRG results: ", res['dmrg_output_parameters'])
-    print("Dynamic correlator results: ", res['dyncorr_output_parameters'])
     assert node.is_finished_ok
 
 

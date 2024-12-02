@@ -65,6 +65,13 @@ class DMRGCalculation(CalcJob):
             help="Sites and Hamiltonian of the system for dynamical correlator",
         )
 
+        spec.output(
+            "remote_folder",
+            valid_type=RemoteData,
+            required=True,
+            help="The folder of the remote calculation",
+        )
+
         spec.default_output_node = "output_parameters"
         spec.outputs.dynamic = True
 
@@ -161,6 +168,8 @@ class DMRGCalculation(CalcJob):
                 calcinfo.remote_symlink_list.append(copy_info)
             else:
                 calcinfo.remote_copy_list.append(copy_info)
+
+        calcinfo.retrieve_list.append(self.PARENT_FOLDER_NAME)
 
         return calcinfo
         

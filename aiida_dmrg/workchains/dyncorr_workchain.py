@@ -45,29 +45,28 @@ class DynCorrWorkChain(WorkChain):
         builder.dmrg.code = self.inputs.dmrg_code
         builder.dmrg.metadata.options = self.inputs.options["dmrg"]
         builder.dmrg.parameters = self.inputs.dmrg_params
-        # builder.dmrg.parent_calc_folder = self.inputs.parent_calc_folder
+        
+        if "parent_calc_folder" in self.inputs:
+          builder.parent_calc_folder = self.inputs.parent_calc_folder
 
         dmrg_running = self.submit(builder)
         self.to_context(dmrg=dmrg_running)
 
     def run_dyncorr(self):
         self.report("Running Dynamic Correlator calculation...")
-        # if not common_utils.check_if_calc_ok(self.ctx.dmrg): # we don't have this function
+
+        # if not self.ctx.dmrg.is_finished_ok:
         #     self.report("DMRG calculation did not finish successfully.")
         #     return self.exit_codes.ERROR_DMRG_FAILED
-        if not self.ctx.dmrg.is_finished_ok:
-            self.report("DMRG calculation did not finish successfully.")
-            return self.exit_codes.ERROR_DMRG_FAILED
+        
         builder = DynCorrCalculation.get_builder()
-        builder.dyncorr_code = self.inputs.dyncorr_code
-        builder.options = self.inputs.options
-        builder.parameters = self.inputs.dyncorr_params
         builder.parent_calc_folder = self.ctx.dmrg.outputs.remote_folder
-        builder.options = Dict(self.inputs.options["dyncorr"])
+        builder.code = self.inputs.dyncorr_code
+        builder.parameters = self.inputs.dyncorr_params
+        builder.options = self.inputs.options["dyncorr"]
 
         dyncorr_running = self.submit(builder)
-
-        return ToContext(dyncorr=dyncorr_running)
+        self.to_context(dyncorr=dyncorr_running)
 
     def finalize(self):
         ctx = self.ctx

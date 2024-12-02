@@ -27,7 +27,7 @@ class DMRGBaseWorkChain(BaseRestartWorkChain):
         spec.outline(
             cls.setup,
             cls.run_dmrg,
-            cls.store_remote_folder,
+            cls.finalize,
         )
         
 
@@ -52,7 +52,7 @@ class DMRGBaseWorkChain(BaseRestartWorkChain):
     ])
     def inspect_dmrg(self, node):
         """Verify that the DMRG calculation finished successfully."""
-        
+        node = self.ctx.dmrg
         try:
             if not node.is_finished_ok:
                 self.report(f"calculation failed with exit status {node.exit_status}")
@@ -65,13 +65,21 @@ class DMRGBaseWorkChain(BaseRestartWorkChain):
     
     def run_dmrg(self):
         """Run the DMRG calculation."""
-        inputs = self.ctx.inputs
-        return self.submit(DMRGCalculation, **inputs)
-    
-    def store_remote_folder(self):
-        """Store the remote folder output."""
-        if self.ctx.dmrg and self.ctx.dmrg.outputs.remote_folder:
-            self.out('remote_folder', self.ctx.dmrg.outputs.remote_folder)
-        else:
-            self.report('DMRG workchain did not provide a remote_folder.')
-            return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
+        builder = DMRGCalculation.get_builder()
+        
+        builder.code = self.inputs.dmrg.code
+        builder.parameters = self.inputs.dmrg.parameters
+        if self.ctx.remote_folder is not None:
+          builder.parent_calc_folder = self.ctx.remote_folder
+        builder.metadata.options = self.ctx.inputs.metadata.options
+
+        self.ctx.dmrg = self.to_context(dmrg=self.submit(builder))
+
+    def finalize(self):
+        """Finalize the workchain."""
+        self.out('remote_folder', self.ctx.remote_folder)
+        self.report('DMRG workchain completed successfully')
+        return AttributeDict({
+            'output_parameters': self.ctx.dmrg.outputs.output_parameters,
+            'remote_folder': self.ctx.remote_folder,
+        })
