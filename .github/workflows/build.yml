@@ -1,6 +1,5 @@
 ---
   name: build
-  # TODO: does julia need to be installed here?
   on: [push, pull_request]
   
   jobs:

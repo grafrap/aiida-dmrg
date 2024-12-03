@@ -56,7 +56,6 @@ def example_dyncorr(code):
             "max_memory_kb": memory_mb * 1024,
         },
         "dyncorr": {
-            "withmpi": False,
             "resources": {
                 "num_machines": 1,
                 "num_mpiprocs_per_machine": 1,

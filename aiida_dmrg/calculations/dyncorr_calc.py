@@ -40,7 +40,7 @@ class DynCorrCalculation(CalcJob):
         codeinfo.stdin_name = self.INPUT_FILE
         codeinfo.stdout_name = self.OUTPUT_FILE
         codeinfo.stderr_name = self.OUTPUT_FILE
-        codeinfo.withmpi = False
+        codeinfo.withmpi = True
 
         calcinfo = CalcInfo()
         calcinfo.local_copy_list = []  # Initialize as empty
@@ -50,7 +50,7 @@ class DynCorrCalculation(CalcJob):
             parent_folder = self.inputs.parent_calc_folder
             comp_uuid = parent_folder.computer.uuid
             remote_path = parent_folder.get_remote_path()
-            destination = "parent_calc_folder/"
+            destination = "./"
             calcinfo.local_copy_list.append((remote_path, destination, ''))
 
         calcinfo.uuid = self.uuid
