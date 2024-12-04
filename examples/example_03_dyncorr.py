@@ -35,6 +35,7 @@ def example_dyncorr(code):
     dyncorr_parameters = Dict(dict=OrderedDict([
         ("title", "Dynamic correlator calculation"),
         ("comment", "Example calculation"),
+        ("J", 2)
         ("N_max", 200),
     ]))
 

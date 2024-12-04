@@ -79,6 +79,7 @@ class DynCorrCalculation(CalcJob):
     def _render_input(self, input_params):
         """Render the input file."""
         param_order = [
+            "J",
             "N_max",
             "cutoff"
         ]
