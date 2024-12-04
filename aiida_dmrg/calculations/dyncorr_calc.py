@@ -20,7 +20,6 @@ class DynCorrCalculation(CalcJob):
         spec.input("parent_calc_folder", valid_type=RemoteData, help="Parent calculation folder")
         
         spec.output("output_matrix", valid_type=Dict, required=True, help="Dynamic correlator matrix")
-        spec.output("time_measurement", valid_type=Dict, required=True, help="Time measurements")
 
         spec.exit_code(300, "ERROR_NO_RETRIEVED_FOLDER", message="Retrieved folder could not be accessed.")
         spec.exit_code(301, "ERROR_PARSING_OUTPUT", message="Error parsing the output file.")

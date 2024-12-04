@@ -32,7 +32,6 @@ class DynCorrWorkChain(WorkChain):
             cls.finalize
         )
 
-        spec.output("time_measurement", valid_type=Dict)
         spec.output("output_matrix", valid_type=Dict)
         spec.outputs.dynamic = True
 
@@ -74,5 +73,4 @@ class DynCorrWorkChain(WorkChain):
             self.report("Dynamic Correlator calculation did not finish successfully.")
             return self.exit_codes.ERROR_DYNCCORR_FAILED
 
-        self.out("time_measurement", ctx.dyncorr.outputs.time_measurement)
         self.out("output_matrix", ctx.dyncorr.outputs.output_matrix)

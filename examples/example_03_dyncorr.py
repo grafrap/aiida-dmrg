@@ -35,7 +35,7 @@ def example_dyncorr(code):
     dyncorr_parameters = Dict(dict=OrderedDict([
         ("title", "Dynamic correlator calculation"),
         ("comment", "Example calculation"),
-        ("J", 2)
+        ("J", 2),
         ("N_max", 200),
     ]))
 
@@ -60,7 +60,7 @@ def example_dyncorr(code):
             "resources": {
                 "num_machines": 1,
                 "num_mpiprocs_per_machine": 1,
-                "num_cores_per_mpiproc": num_cores,
+                "num_cores_per_mpiproc": 8, # num_cores,
             },
             "max_wallclock_seconds": 3600,
             "max_memory_kb": memory_mb * 1024,

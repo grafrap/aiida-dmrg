@@ -57,6 +57,9 @@ class DMRGBaseParser(Parser):
             if message in log_file_string:
                 return exit_code
         
+        if "Error" in log_file_string or "ERROR" in log_file_string:
+            return self.exit_codes.ERROR_CALCULATION_FAILED
+
         try:
             # Parse the arrays
             energy_list = self._extract_array(log_file_string, "List of E:")
@@ -82,8 +85,8 @@ class DMRGBaseParser(Parser):
             # Store results in output nodes
             self.out('output_parameters', Dict(dict=output_dict))
             
-            return self._final_checks_on_log(log_file_string)
-
+            return None
+        
         except Exception as exc:
             print(f"Error during parsing: {str(exc)}")
             return self.exit_codes.ERROR_INVALID_OUTPUT
@@ -113,13 +116,3 @@ class DMRGBaseParser(Parser):
             print(f"Error extracting array data: {str(exc)}")
             return None
 
-    def _final_checks_on_log(self, log_file_string):
-        """Perform final checks on the output file"""
-        
-        if "Error" in log_file_string:
-            return self.exit_codes.ERROR_CALCULATION_FAILED
-        
-        if "ERROR" in log_file_string:
-            return self.exit_codes.ERROR_CALCULATION_FAILED
-        
-        return None
