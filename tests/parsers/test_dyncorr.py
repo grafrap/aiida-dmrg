@@ -1,4 +1,4 @@
-# test_dyncorr_parser.py
+# test_dyncorr.py
 
 import unittest
 from unittest.mock import MagicMock, PropertyMock

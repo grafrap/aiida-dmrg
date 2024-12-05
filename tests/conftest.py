@@ -8,7 +8,7 @@ from aiida.common.folders import Folder
 from aiida.common.links import LinkType
 from aiida.engine.utils import instantiate_process
 from aiida.manage.manager import get_manager
-from aiida.orm import CalcJobNode, FolderData
+from aiida.orm import CalcJobNode, FolderData, RemoteData, InstalledCode
 from aiida.plugins import ParserFactory
 
 pytest_plugins = ["aiida.tools.pytest_fixtures"]
@@ -24,14 +24,14 @@ def fixture_localhost(aiida_localhost):
 
 @pytest.fixture
 def fixture_code(fixture_localhost):
-    """Return a `Code` instance configured to run calculations of given entry point on localhost `Computer`."""
+    """Return an `InstalledCode` instance configured to run calculations of given entry point on localhost `Computer`."""
 
     def _fixture_code(entry_point_name):
-        from aiida.orm import Code
-
-        return Code(
+        return InstalledCode(
             input_plugin_name=entry_point_name,
-            remote_computer_exec=[fixture_localhost, "/bin/true"],
+            computer=fixture_localhost,
+            filepath_executable="/bin/true",
+            default_calc_job_plugin=entry_point_name,
         )
 
     return _fixture_code
@@ -41,6 +41,24 @@ def fixture_code(fixture_localhost):
 def filepath_tests() -> pathlib.Path:
     """Return the path to the tests folder."""
     return pathlib.Path(__file__).resolve().parent
+
+
+@pytest.fixture
+def fixture_remote_data(generate_remote_data):
+    """Return a `RemoteData` instance."""
+    return generate_remote_data
+
+
+@pytest.fixture
+def generate_remote_data(aiida_localhost, tmp_path):
+    """Generate a RemoteData instance pointing to a local folder."""
+    remote_path = tmp_path / "remote_folder"
+    remote_path.mkdir(parents=True, exist_ok=True)
+    computer = aiida_localhost
+    folder = FolderData()
+    folder.put_object_from_tree(remote_path, ".")  
+    remote_data = RemoteData(computer=computer, remote_path=str(remote_path))
+    return remote_data
 
 
 @pytest.fixture
