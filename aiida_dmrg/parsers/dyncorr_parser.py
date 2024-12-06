@@ -53,10 +53,12 @@ class DynCorrParser(Parser):
         except OSError:
             return self.ERROR_OUTPUT_LOG_READ
 
-        exit_code = self._parse_output(log_file_string)
-        print(f"Exit code: {exit_code}")
-        if exit_code is not None:
-            return exit_code
+        try:
+            exit_code = self._parse_output(log_file_string)
+            if exit_code is not None:
+                return exit_code
+        except ValidationError:
+            return self.ERROR_PARSING_OUTPUT
 
         return ExitCode(0)
 
@@ -66,12 +68,10 @@ class DynCorrParser(Parser):
         try:
             # Parse the arrays
             output_matrix = self._extract_output_matrix(content)
-            if isinstance(output_matrix, ExitCode):
-                return output_matrix
         except Exception as exception:
-            return self.ERROR_PARSING_OUTPUT
+            raise ValidationError("Failed to parse the output matrix.")
         except ValidationError as exception:
-            return self.ERROR_PARSING_OUTPUT
+            raise ValidationError(f"An unexpected error occurred: {exception}")
         
 
         self.out("output_matrix", Dict(dict={'matrix': output_matrix}))
@@ -85,7 +85,7 @@ class DynCorrParser(Parser):
             start_idx = content.find("[")
             end_idx = content.find("]", start_idx) + 1
             if start_idx + 1 == end_idx:
-                return self.ERROR_PARSING_OUTPUT
+                raise ValidationError("Failed to find the output matrix.")
             matrix_string = content[start_idx:end_idx].split("\n")[0]
 
             # Convert the matrix string to a Python list/array
