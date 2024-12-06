@@ -1,14 +1,12 @@
 """Base workchain for DMRG calculations."""
 
-from aiida.common import AttributeDict
 from aiida.engine import (
     BaseRestartWorkChain,
     ProcessHandlerReport,
     process_handler,
-    while_,
 )
-from aiida.orm import Dict, RemoteData
-from aiida.plugins import CalculationFactory, DataFactory
+from aiida.orm import RemoteData
+from aiida.plugins import CalculationFactory
 
 DMRGCalculation = CalculationFactory('dmrg')
 
@@ -81,7 +79,4 @@ class DMRGBaseWorkChain(BaseRestartWorkChain):
         self.out('remote_folder', self.ctx.remote_folder)
 
         self.report('DMRG workchain completed successfully')
-        # return AttributeDict({
-        #     'output_parameters': self.ctx.dmrg.outputs.output_parameters,
-        #     'remote_folder': self.ctx.remote_folder,
-        # })
+

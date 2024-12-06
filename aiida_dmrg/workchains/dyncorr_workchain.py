@@ -1,5 +1,5 @@
 # DYNCORR_WORKCHAIN.PY
-from aiida.engine import WorkChain, ToContext
+from aiida.engine import WorkChain
 from aiida.orm import Dict, RemoteData, Code
 from aiida.plugins import CalculationFactory, WorkflowFactory
 

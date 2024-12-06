@@ -4,11 +4,10 @@
 
 import sys
 
-import ase.io
 import click
 from aiida.common import NotExistent
 from aiida.engine import run_get_node
-from aiida.orm import Code, Dict, StructureData, load_code
+from aiida.orm import Dict, load_code
 from aiida.plugins import CalculationFactory
 from collections import OrderedDict
 

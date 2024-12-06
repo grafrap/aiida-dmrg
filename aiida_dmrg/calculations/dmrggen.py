@@ -1,12 +1,9 @@
 """DMRG input plugin."""
 from aiida.common import CalcInfo, CodeInfo
 
-# from aiida.cmdline.utils import echo
 from aiida.engine import CalcJob
 from aiida.engine.processes.process_spec import CalcJobProcessSpec
-from aiida.orm import Dict, Float, RemoteData
-from aiida.plugins import DataFactory
-import numpy as np
+from aiida.orm import Dict, RemoteData
 
 
 class DMRGCalculation(CalcJob):

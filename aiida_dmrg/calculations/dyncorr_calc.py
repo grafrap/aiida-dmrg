@@ -1,7 +1,6 @@
 from aiida.common import CalcInfo, CodeInfo
 from aiida.engine import CalcJob
 from aiida.orm import Dict, RemoteData
-from aiida.plugins import DataFactory
 
 class DynCorrCalculation(CalcJob):
     """

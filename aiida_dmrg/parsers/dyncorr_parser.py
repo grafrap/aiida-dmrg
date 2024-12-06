@@ -33,7 +33,7 @@ class DynCorrParser(Parser):
     def _parse_output(self, content):
         """Parse the Dynamic Correlator output file content."""
 
-        if "Error" in content or "ERROR" in content:
+        if "Error:" in content or "ERROR" in content:
             return self.exit_codes.ERROR_CALCULATION_FAILED
 
         try:
@@ -53,7 +53,7 @@ class DynCorrParser(Parser):
         
         try:
             start_idx = content.find("[")
-            end_idx = content.find("]", start_idx) + 1
+            end_idx = content.find("]", start_idx + 5) + 1
             if start_idx + 1 == end_idx:
                 return None
             matrix_string = content[start_idx:end_idx].split("\n")[0]

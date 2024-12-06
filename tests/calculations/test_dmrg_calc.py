@@ -1,6 +1,6 @@
 """Tests for the DMRG calculation class."""
 
-from aiida.orm import Dict, StructureData
+from aiida.orm import Dict
 from aiida_dmrg.calculations.dmrggen import DMRGCalculation
 from collections import OrderedDict
 

@@ -7,8 +7,8 @@ from collections import OrderedDict
 import click
 from aiida.common import NotExistent
 from aiida.engine import run_get_node
-from aiida.orm import Code, Dict, load_code
-from aiida.plugins import CalculationFactory, WorkflowFactory
+from aiida.orm import Dict, load_code
+from aiida.plugins import WorkflowFactory
 
 DynCorrWorkChain = WorkflowFactory('dyncorr')
 

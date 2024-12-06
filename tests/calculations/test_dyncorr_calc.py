@@ -1,6 +1,6 @@
 """Tests for the Dyncorr calculation class."""
 
-from aiida.orm import Dict, StructureData
+from aiida.orm import Dict
 from aiida_dmrg.calculations.dyncorr_calc import DynCorrCalculation
 from collections import OrderedDict
 from copy import copy

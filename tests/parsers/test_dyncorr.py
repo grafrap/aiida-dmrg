@@ -18,8 +18,9 @@ class TestDynCorrParser(unittest.TestCase):
     def test_parse_success(self):
         self.out_folder.base.repository.list_object_names.return_value = ['dyncorr.out']
         self.out_folder.base.repository.get_object_content.return_value = """
-        Dynamic correlator:
-        [1.0 2.0; 3.0 4.0]
+        N = 201	 i = 3	 Error = 0.006710181959374006	 sum_χ = 0.45679996344513446	 Δsum = 4.996774021231998e-5	 Δt = 48 milliseconds
+        N > N_max
+        [1 2; 3 4]
         """
         exit_code = self.parser.parse()
         self.assertEqual(exit_code.status, 0)
