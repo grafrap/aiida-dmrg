@@ -15,6 +15,8 @@ try:
     pytest_plugins = ["aiida.tools.pytest_fixtures"]
 except ImportError:
     pytest_plugins = ["aiida.manage.tests.pytest_fixtures"]
+except ModuleNotFoundError:
+    pytest_plugins = ["aiida.manage.tests.pytest_fixtures"]
 
 
 @pytest.fixture
