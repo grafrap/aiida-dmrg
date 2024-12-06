@@ -1,14 +1,10 @@
 """AiiDA-DMRG output parser"""
 
-import datetime
 import re
-import io
 
-import cclib
-import numpy as np
 from aiida.common import NotExistent
 from aiida.engine import ExitCode
-from aiida.orm import Dict, List
+from aiida.orm import Dict
 from aiida.parsers import Parser
 
 class DMRGBaseParser(Parser):

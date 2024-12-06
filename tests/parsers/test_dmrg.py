@@ -1,7 +1,7 @@
 import unittest
-from unittest.mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock, PropertyMock
 from aiida_dmrg.parsers.dmrg import DMRGBaseParser
-from aiida.orm import Dict, List, Node
+from aiida.orm import Node
 
 class TestDMRGBaseParser(unittest.TestCase):
     def setUp(self):

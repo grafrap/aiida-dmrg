@@ -15,14 +15,57 @@ class DynCorrCalculation(CalcJob):
     @classmethod
     def define(cls, spec):
         super().define(spec)
-        spec.input("parameters", valid_type=Dict, required=True, help="Input parameters for DynCorr calculation")
-        spec.input("metadata.options.parser_name", valid_type=str, default=cls.DEFAULT_PARSER, non_db=True)
-        spec.input("parent_calc_folder", valid_type=RemoteData, help="Parent calculation folder")
+        spec.input(
+            "parameters",
+            valid_type=Dict,
+            required=True,
+            help="Input parameters for DynCorr calculation"
+        )
+        spec.input(
+            "metadata.options.parser_name",
+            valid_type=str,
+            default=cls.DEFAULT_PARSER,
+            non_db=True
+        )
+        spec.input(
+            "parent_calc_folder",
+            valid_type=RemoteData,
+            help="Parent calculation folder"
+        )
         
-        spec.output("output_matrix", valid_type=Dict, required=True, help="Dynamic correlator matrix")
+        spec.output(
+            "output_matrix",
+            valid_type=Dict,
+            required=True,
+            help="Dynamic correlator matrix"
+        )
 
-        spec.exit_code(300, "ERROR_NO_RETRIEVED_FOLDER", message="Retrieved folder could not be accessed.")
-        spec.exit_code(301, "ERROR_PARSING_OUTPUT", message="Error parsing the output file.")
+        spec.exit_code(
+            300,
+            "ERROR_OUTPUT_MISSING",
+            message="The output file 'dyncorr.out' is missing."
+        )
+        spec.exit_code(
+            301,
+            "ERROR_NO_RETRIEVED_FOLDER",
+            message="Retrieved folder could not be accessed."
+        )
+        spec.exit_code(
+            302,
+            "ERROR_OUTPUT_LOG_READ",
+            message="Error reading the output log file."
+        )
+        spec.exit_code(
+            303,
+            "ERROR_PARSING_OUTPUT",
+            message="Error parsing the output file."
+        )
+        spec.exit_code(
+            304,
+            "ERROR_CALCULATION_FAILED",
+            message="The calculation failed."
+        )
+
 
     def prepare_for_submission(self, folder):
         input_params = self.inputs.parameters.get_dict()
