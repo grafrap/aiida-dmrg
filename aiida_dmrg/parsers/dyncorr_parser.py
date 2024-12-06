@@ -68,11 +68,10 @@ class DynCorrParser(Parser):
         try:
             # Parse the arrays
             output_matrix = self._extract_output_matrix(content)
-        except Exception as exception:
-            raise ValidationError("Failed to parse the output matrix.")
         except ValidationError as exception:
-            raise ValidationError(f"An unexpected error occurred: {exception}")
-        
+            raise ValidationError(f"An unexpected error occurred: {exception}") from exception
+        except Exception as exception:
+            raise ValidationError("Failed to parse the output matrix.") from exception
 
         self.out("output_matrix", Dict(dict={'matrix': output_matrix}))
         return None
@@ -80,7 +79,6 @@ class DynCorrParser(Parser):
     def _extract_output_matrix(self, content):
         """Extract the output matrix from the content."""
         
-        # Extract the matrix from the content
         try:
             start_idx = content.find("[")
             end_idx = content.find("]", start_idx) + 1
@@ -93,9 +91,9 @@ class DynCorrParser(Parser):
             output_matrix = ast.literal_eval(f'[{formatted_matrix_string}]')
             return output_matrix
 
-        except (ValueError, SyntaxError):
-            raise ValidationError("Failed to parse the output matrix.")
+        except (ValueError, SyntaxError) as exception:
+            raise ValidationError("Failed to parse the output matrix.") from exception
         except Exception as exception:
-            raise ValidationError(f"An unexpected error occurred: {exception}")
+            raise ValidationError(f"An unexpected error occurred: {exception}") from exception
 
         return None
