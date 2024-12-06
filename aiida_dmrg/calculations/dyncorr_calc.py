@@ -90,13 +90,13 @@ class DynCorrCalculation(CalcJob):
         calcinfo = CalcInfo()
         calcinfo.local_copy_list = []  # Initialize as empty
 
-        # Correctly format the local_copy_list with three elements per tuple
-        if "parent_calc_folder" in self.inputs:
-            parent_folder = self.inputs.parent_calc_folder
-            comp_uuid = parent_folder.computer.uuid
-            remote_path = parent_folder.get_remote_path()
-            destination = "./"
-            calcinfo.local_copy_list.append((remote_path, destination, ""))
+        # # Correctly format the local_copy_list with three elements per tuple
+        # if "parent_calc_folder" in self.inputs:
+        #     parent_folder = self.inputs.parent_calc_folder
+        #     comp_uuid = parent_folder.computer.uuid
+        #     remote_path = parent_folder.get_remote_path()
+        #     destination = "./"
+        #     calcinfo.local_copy_list.append((remote_path, destination, ""))
 
         calcinfo.uuid = self.uuid
         calcinfo.cmdline_params = codeinfo.cmdline_params
