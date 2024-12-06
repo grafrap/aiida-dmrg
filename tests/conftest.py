@@ -11,7 +11,10 @@ from aiida.manage.manager import get_manager
 from aiida.orm import CalcJobNode, FolderData, RemoteData, InstalledCode
 from aiida.plugins import ParserFactory
 
-pytest_plugins = ["aiida.tools.pytest_fixtures"]
+try:
+    pytest_plugins = ["aiida.tools.pytest_fixtures"]
+except ImportError:
+    pytest_plugins = ["aiida.manage.tests.pytest_fixtures"]
 
 
 @pytest.fixture

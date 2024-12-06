@@ -42,7 +42,7 @@ def example_dyncorr(code):
     builder = DynCorrWorkChain.get_builder()
 
     builder.dmrg_code = code
-    builder.dyncorr_code = load_code("dyncorr@daint-mc-julia")
+    builder.dyncorr_code = load_code("dyncorr@daint-mc-julia") # TODO: Change to dyncorr@localhost
     builder.dmrg_params = dmrg_parameters
     builder.dyncorr_params = dyncorr_parameters
     builder.options = {
@@ -75,7 +75,7 @@ def example_dyncorr(code):
 
 
 @click.command("cli")
-@click.argument("codelabel", default="dmrg@daint-mc-julia")
+@click.argument("codelabel", default="dmrg@daint-mc-julia") # TODO: change to dmrg@localhost
 def cli(codelabel):
     """Click interface"""
     try:
