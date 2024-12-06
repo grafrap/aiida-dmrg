@@ -1,8 +1,10 @@
 import ast
-from aiida.parsers import Parser
-from aiida.orm import Dict
-from aiida.engine import ExitCode
+
 from aiida.common import NotExistent
+from aiida.engine import ExitCode
+from aiida.orm import Dict
+from aiida.parsers import Parser
+
 
 class DynCorrParser(Parser):
     """Parser for Dynamic Correlator output files."""
@@ -18,7 +20,9 @@ class DynCorrParser(Parser):
             if fname not in available_files:
                 print(f"Available files: {available_files}")
                 return self.exit_codes.ERROR_OUTPUT_MISSING
-            log_file_string = out_folder.base.repository.get_object_content(fname)
+            log_file_string = out_folder.base.repository.get_object_content(
+                fname,
+            )
         except NotExistent:
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
         except OSError:
@@ -41,29 +45,34 @@ class DynCorrParser(Parser):
             output_matrix = self._extract_output_matrix(content)
             if output_matrix is None:
                 return self.exit_codes.ERROR_PARSING_OUTPUT
-            self.out("output_matrix", Dict(dict={'matrix': output_matrix}))
-            return None
-        
-        except Exception as exception:
-            return self.exit_codes.ERROR_PARSING_OUTPUT
+            else:
+                self.out("output_matrix", Dict(dict={"matrix": output_matrix}))
+                return None
 
+        except Exception:
+            return self.exit_codes.ERROR_PARSING_OUTPUT
 
     def _extract_output_matrix(self, content):
         """Extract the output matrix from the content."""
-        
+
         try:
             start_idx = content.find("[")
             end_idx = content.find("]", start_idx + 5) + 1
             if start_idx + 1 == end_idx:
                 return None
-            matrix_string = content[start_idx:end_idx].split("\n")[0]
+            else:
+                matrix_string = content[start_idx:end_idx].split("\n")[0]
 
-            # Convert the matrix string to a Python list/array
-            formatted_matrix_string = matrix_string.replace("; ", '],[').replace(" ", ', ')
-            output_matrix = ast.literal_eval(f'[{formatted_matrix_string}]')
-            return output_matrix
+                # Convert the matrix string to a Python list/array
+                formatted_matrix_string = matrix_string.replace(
+                    "; ",
+                    "],[",
+                ).replace(" ", ", ")
+                output_matrix = ast.literal_eval(
+                    f"[{formatted_matrix_string}]",
+                )
+                return output_matrix
 
         except Exception as exception:
             print(f"Error extracting output matrix: {exception}")
             return None
-

@@ -8,10 +8,12 @@ from aiida.common.folders import Folder
 from aiida.common.links import LinkType
 from aiida.engine.utils import instantiate_process
 from aiida.manage.manager import get_manager
-from aiida.orm import CalcJobNode, FolderData, RemoteData, InstalledCode
+from aiida.orm import CalcJobNode, FolderData, InstalledCode, RemoteData
 from aiida.plugins import ParserFactory
 
-pytest_plugins = ["aiida.tools.pytest_fixtures"] # to use this on local machine use aiida.tools.pytest_fixtures
+pytest_plugins = [
+    "aiida.manage.tests.pytest_fixtures"
+]  # to use this on local machine use aiida.tools.pytest_fixtures
 
 
 @pytest.fixture
@@ -24,7 +26,10 @@ def fixture_localhost(aiida_localhost):
 
 @pytest.fixture
 def fixture_code(fixture_localhost):
-    """Return an `InstalledCode` instance configured to run calculations of given entry point on localhost `Computer`."""
+    """
+    Return an `InstalledCode` instance configured
+    to run calculations of given entry point on localhost `Computer`.
+    """
 
     def _fixture_code(entry_point_name):
         return InstalledCode(
@@ -56,21 +61,27 @@ def generate_remote_data(aiida_localhost, tmp_path):
     remote_path.mkdir(parents=True, exist_ok=True)
     computer = aiida_localhost
     folder = FolderData()
-    folder.put_object_from_tree(remote_path, ".")  
+    folder.put_object_from_tree(remote_path, ".")
     remote_data = RemoteData(computer=computer, remote_path=str(remote_path))
     return remote_data
 
 
 @pytest.fixture
 def generate_calc_job(tmp_path):
-    """Return a factory to generate a :class:`aiida.engine.CalcJob` instance with the given inputs.
+    """
+    Return a factory to generate a :class:`aiida.engine.CalcJob`
+    instance with the given inputs.
 
-    The fixture will call ``prepare_for_submission`` and return a tuple of the temporary folder that was passed to it,
+    The fixture will call ``prepare_for_submission`` and
+    return a tuple of the temporary folder that was passed to it,
     as well as the ``CalcInfo`` instance that it returned.
     """
 
     def factory(process_class, inputs=None, return_process=False):
-        """Create a :class:`aiida.engine.CalcJob` instance with the given inputs."""
+        """
+        Create a :class:`aiida.engine.CalcJob`
+        instance with the given inputs.
+        """
         manager = get_manager()
         runner = manager.get_runner()
         process = instantiate_process(runner, process_class, **inputs or {})
@@ -89,11 +100,19 @@ def generate_calc_job_node(filepath_tests, aiida_computer_local):
     """Create and return a :class:`aiida.orm.CalcJobNode` instance."""
 
     def flatten_inputs(inputs, prefix=""):
-        """Flatten inputs recursively like :meth:`aiida.engine.processes.process::Process._flatten_inputs`."""
+        """
+        Flatten inputs recursively like
+        :meth:`aiida.engine.processes.process::Process._flatten_inputs`.
+        """
         flat_inputs = []
         for key, value in inputs.items():
             if isinstance(value, collections.abc.Mapping):
-                flat_inputs.extend(flatten_inputs(value, prefix=prefix + key + "__"))
+                flat_inputs.extend(
+                    flatten_inputs(
+                        value,
+                        prefix=prefix + key + "__",
+                    )
+                )
             else:
                 flat_inputs.append((prefix + key, value))
         return flat_inputs
@@ -114,7 +133,9 @@ def generate_calc_job_node(filepath_tests, aiida_computer_local):
             for link_label, input_node in flatten_inputs(inputs):
                 input_node.store()
                 node.base.links.add_incoming(
-                    input_node, link_type=LinkType.INPUT_CALC, link_label=link_label
+                    input_node,
+                    link_type=LinkType.INPUT_CALC,
+                    link_label=link_label,
                 )
 
         node.store()

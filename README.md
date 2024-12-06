@@ -36,7 +36,7 @@ dyncorr_parameters = Dict(dict=OrderedDict([
     ]))
 ```
 Both `N_max` and `cutoff` are optional. If nothing is set, the default values are set as follows:
-By default `N_max`, the number of chebyshev expansion coefficients, is set to the many-body bandwidth of the hamiltonian, i.e. the difference between minimal and maximal energy. If this default bandwidth falls below a threshold of 600 expansion coefficients, `N_max` gets set to 600. 
+By default `N_max`, the number of chebyshev expansion coefficients, is set to the many-body bandwidth of the hamiltonian, i.e. the difference between minimal and maximal energy. If this default bandwidth falls below a threshold of 600 expansion coefficients, `N_max` gets set to 600.
 By default `cutoff` is set to 1e-8. To get decent accuracy and still quite fast code, one should use a `cutoff` between 1e-8 and 1e-6.
 
 J can be set also to a matrix, it just always has to be the same as the J of the corresponding DMRG calculation.

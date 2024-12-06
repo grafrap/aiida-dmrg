@@ -1,6 +1,5 @@
 """DMRG input plugin."""
 from aiida.common import CalcInfo, CodeInfo
-
 from aiida.engine import CalcJob
 from aiida.engine.processes.process_spec import CalcJobProcessSpec
 from aiida.orm import Dict, RemoteData
@@ -10,7 +9,7 @@ class DMRGCalculation(CalcJob):
     """
     AiiDA calculation plugin for the DMRG code.
 
-    Template: 
+    Template:
     TODO
     """
 
@@ -59,7 +58,8 @@ class DMRGCalculation(CalcJob):
             "Hamiltonian_sites",
             valid_type=Dict,
             required=False,
-            help="Sites and Hamiltonian of the system for dynamical correlator",
+            help="""Sites and Hamiltonian of
+            the system for dynamical correlator""",
         )
 
         spec.output(
@@ -85,7 +85,8 @@ class DMRGCalculation(CalcJob):
         spec.exit_code(
             202,
             "ERROR_UNPHYISCAL_INPUT",
-            message="The input file contains unphysical values (check s, N and Sz).",
+            message="""The input file contains unphysical
+            values (check s, N and Sz).""",
         )
         spec.exit_code(
             203,
@@ -113,7 +114,6 @@ class DMRGCalculation(CalcJob):
             message="The calculation was terminated due to an error.",
         )
 
-
     def prepare_for_submission(self, folder):
         """
         This is the routine to be called when you want to create
@@ -122,7 +122,7 @@ class DMRGCalculation(CalcJob):
         :param folder: a aiida.common.folders.Folder subclass where
                         the plugin should put all its files.
         """
-        # Get the settings dictionary, or an empty one if not specified        
+        # Get the settings dictionary, or an empty one if not specified
 
         # Generate the input file
         input_string = DMRGCalculation._render_input_string_from_params(
@@ -132,7 +132,11 @@ class DMRGCalculation(CalcJob):
         with open(folder.get_abs_path(self.INPUT_FILE), "w") as out_file:
             out_file.write(input_string)
 
-        settings = self.inputs.get('settings', {}).get_dict() if 'settings' in self.inputs else {}
+        settings = (
+            self.inputs.get("settings", {}).get_dict()
+            if "settings" in self.inputs
+            else {}
+        )
 
         codeinfo = CodeInfo()
         codeinfo.code_uuid = self.inputs.code.uuid
@@ -154,7 +158,7 @@ class DMRGCalculation(CalcJob):
         calcinfo.codes_info = [codeinfo]
         calcinfo.retrieve_list = [self.OUTPUT_FILE]
 
-        #symlink or copy to parent calculation
+        # symlink or copy to parent calculation
         calcinfo.remote_symlink_list = []
         calcinfo.remote_copy_list = []
         if "parent_calc_folder" in self.inputs:
@@ -169,29 +173,24 @@ class DMRGCalculation(CalcJob):
         calcinfo.retrieve_list.append(self.PARENT_FOLDER_NAME)
 
         return calcinfo
-        
+
     @classmethod
     def _render_input_string_from_params(cls, parameters):
         """Convert dictionary parameters to Julia command line arguments"""
         param_order = [
-          "S",
-          "N_sites",
-          "J",
-          "Sz",
-          "n_excitations",
-          "conserve_symmetry", 
-          "print_HDF5",
-          "maximal_energy",
+            "S",
+            "N_sites",
+            "J",
+            "Sz",
+            "n_excitations",
+            "conserve_symmetry",
+            "print_HDF5",
+            "maximal_energy",
         ]
         ordered_params = []
         for key in param_order:
             if key in parameters:
                 value = parameters[key]
                 ordered_params.append(f"{value}")
-                    
-        return " ".join(ordered_params)
-        
-        
-        
-    
 
+        return " ".join(ordered_params)

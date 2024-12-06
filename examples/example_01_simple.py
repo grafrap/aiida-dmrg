@@ -3,13 +3,13 @@
 
 
 import sys
+from collections import OrderedDict
 
 import click
 from aiida.common import NotExistent
 from aiida.engine import run_get_node
 from aiida.orm import Dict, load_code
 from aiida.plugins import CalculationFactory
-from collections import OrderedDict
 
 DMRGCalculation = CalculationFactory("dmrg")
 
@@ -17,24 +17,27 @@ DMRGCalculation = CalculationFactory("dmrg")
 def example_dmrg(dmrg_code):
     """Run a simple dmrg calculation"""
 
-
     num_cores = 2
     memory_mb = 6000
 
     # Main parameters: dmrg input file
-    parameters = Dict(dict=OrderedDict([
-      ("title", "DMRG calculation"),
-      ("comment", "Example calculation"),
-      ("S", 0.5),
-      ("N_sites", 8),
-      ("J", 2),
-      ("Sz", 0),
-      ("n_excitations", 1), 
-      ("conserve_symmetry", "false"),
-      ("print_HDF5", "true"),
-      ("maximal_energy", "true"),
-    ]))
-    
+    parameters = Dict(
+        dict=OrderedDict(
+            [
+                ("title", "DMRG calculation"),
+                ("comment", "Example calculation"),
+                ("S", 0.5),
+                ("N_sites", 8),
+                ("J", 2),
+                ("Sz", 0),
+                ("n_excitations", 1),
+                ("conserve_symmetry", "false"),
+                ("print_HDF5", "true"),
+                ("maximal_energy", "true"),
+            ]
+        )
+    )
+
     # Construct process builder
 
     builder = DMRGCalculation.get_builder()
@@ -59,7 +62,9 @@ def example_dmrg(dmrg_code):
 
 
 @click.command("cli")
-@click.argument("codelabel", default="dmrg@daint-mc-julia") # TODO: change back to dmrg@localhost
+@click.argument(
+    "codelabel", default="dmrg@daint-mc-julia"
+)  # TODO: change back to dmrg@localhost
 def cli(codelabel):
     """Click interface"""
     try:

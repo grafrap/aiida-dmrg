@@ -1,3 +1,3 @@
 """AiiDA-DMRG workchains."""
 
-__all__ = ['DMRGBaseWorkChain, DynCorrWorkChain']
+__all__ = ["DMRGBaseWorkChain, DynCorrWorkChain"]

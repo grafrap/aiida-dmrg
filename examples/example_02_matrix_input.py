@@ -3,13 +3,13 @@
 
 
 import sys
+from collections import OrderedDict
 
 import click
 from aiida.common import NotExistent
 from aiida.engine import run_get_node
 from aiida.orm import Dict, load_code
 from aiida.plugins import CalculationFactory
-from collections import OrderedDict
 
 DMRGCalculation = CalculationFactory("dmrg")
 
@@ -17,32 +17,35 @@ DMRGCalculation = CalculationFactory("dmrg")
 def example_dmrg(dmrg_code):
     """Run a simple dmrg calculation"""
 
-
     num_cores = 2
     memory_mb = 20000
 
-    N = 10
+    n_sites = 10
     val1, val2 = 23, 38
 
-    matrix = [[0 for _ in range(N)] for _ in range(N)]
+    matrix = [[0 for _ in range(n_sites)] for _ in range(n_sites)]
 
-    for i in range(N-1):
-        matrix[i][i+1] = val1 if i % 2 == 0 else val2
-        matrix[i+1][i] = val1 if i % 2 == 0 else val2
+    for i in range(n_sites - 1):
+        matrix[i][i + 1] = val1 if i % 2 == 0 else val2
+        matrix[i + 1][i] = val1 if i % 2 == 0 else val2
 
     # Main parameters: dmrg input file
-    parameters = Dict(dict=OrderedDict([
-      ("title", "DMRG calculation"),
-      ("comment", "Example calculation"),
-      ("S", 1),
-      ("N_sites", N),
-      ("J", matrix),
-      ("n_excitations", 0), 
-      ("conserve_symmetry", "false"),
-      ("print_HDF5", "true"),
-      ("maximal_energy", "true"),
-    ]))
-    
+    parameters = Dict(
+        dict=OrderedDict(
+            [
+                ("title", "DMRG calculation"),
+                ("comment", "Example calculation"),
+                ("S", 1),
+                ("N_sites", n_sites),
+                ("J", matrix),
+                ("n_excitations", 0),
+                ("conserve_symmetry", "false"),
+                ("print_HDF5", "true"),
+                ("maximal_energy", "true"),
+            ]
+        )
+    )
+
     # Construct process builder
 
     builder = DMRGCalculation.get_builder()
@@ -67,7 +70,9 @@ def example_dmrg(dmrg_code):
 
 
 @click.command("cli")
-@click.argument("codelabel", default="dmrg@daint-mc-julia") # TODO: change back to dmrg@localhost
+@click.argument(
+    "codelabel", default="dmrg@daint-mc-julia"
+)  # TODO: change back to dmrg@localhost
 def cli(codelabel):
     """Click interface"""
     try:

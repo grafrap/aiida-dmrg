@@ -62,8 +62,8 @@ dev = [# TODO
 "dyncorr" = "aiida_dmrg.parsers.dyncorr_parser:DynCorrParser"
 
 [project.entry-points."aiida.workflows"]
-"dmrg.base" = "aiida_dmrg.workchains:DMRGBaseWorkChain"
-"dyncorr" = "aiida_dmrg.workchains:DynCorrWorkChain"
+"dmrg.base" = "aiida_dmrg.workchains.base:DMRGBaseWorkChain"
+"dyncorr" = "aiida_dmrg.workchains.dyncorr_workchain:DynCorrWorkChain"
 
 [tool.setuptools]
 include-package-data = true

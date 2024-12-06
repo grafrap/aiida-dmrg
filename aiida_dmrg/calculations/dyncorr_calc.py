@@ -2,6 +2,7 @@ from aiida.common import CalcInfo, CodeInfo
 from aiida.engine import CalcJob
 from aiida.orm import Dict, RemoteData
 
+
 class DynCorrCalculation(CalcJob):
     """
     AiiDA calculation plugin for Dynamic Correlator calculations.
@@ -18,53 +19,52 @@ class DynCorrCalculation(CalcJob):
             "parameters",
             valid_type=Dict,
             required=True,
-            help="Input parameters for DynCorr calculation"
+            help="Input parameters for DynCorr calculation",
         )
         spec.input(
             "metadata.options.parser_name",
             valid_type=str,
             default=cls.DEFAULT_PARSER,
-            non_db=True
+            non_db=True,
         )
         spec.input(
             "parent_calc_folder",
             valid_type=RemoteData,
-            help="Parent calculation folder"
+            help="Parent calculation folder",
         )
-        
+
         spec.output(
             "output_matrix",
             valid_type=Dict,
             required=True,
-            help="Dynamic correlator matrix"
+            help="Dynamic correlator matrix",
         )
 
         spec.exit_code(
             300,
             "ERROR_OUTPUT_MISSING",
-            message="The output file 'dyncorr.out' is missing."
+            message="The output file 'dyncorr.out' is missing.",
         )
         spec.exit_code(
             301,
             "ERROR_NO_RETRIEVED_FOLDER",
-            message="Retrieved folder could not be accessed."
+            message="Retrieved folder could not be accessed.",
         )
         spec.exit_code(
             302,
             "ERROR_OUTPUT_LOG_READ",
-            message="Error reading the output log file."
+            message="Error reading the output log file.",
         )
         spec.exit_code(
             303,
             "ERROR_PARSING_OUTPUT",
-            message="Error parsing the output file."
+            message="Error parsing the output file.",
         )
         spec.exit_code(
             304,
             "ERROR_CALCULATION_FAILED",
-            message="The calculation failed."
+            message="The calculation failed.",
         )
-
 
     def prepare_for_submission(self, folder):
         input_params = self.inputs.parameters.get_dict()
@@ -73,11 +73,15 @@ class DynCorrCalculation(CalcJob):
         with open(folder.get_abs_path(self.INPUT_FILE), "w") as out_file:
             out_file.write(input_string)
 
-        settings = self.inputs.get('settings', {}).get_dict() if 'settings' in self.inputs else {}
+        settings = (
+            self.inputs.get("settings", {}).get_dict()
+            if "settings" in self.inputs
+            else {}
+        )
 
         codeinfo = CodeInfo()
         codeinfo.code_uuid = self.inputs.code.uuid
-        codeinfo.cmdline_params = settings.pop('cmdline', [])
+        codeinfo.cmdline_params = settings.pop("cmdline", [])
         codeinfo.stdin_name = self.INPUT_FILE
         codeinfo.stdout_name = self.OUTPUT_FILE
         codeinfo.stderr_name = self.OUTPUT_FILE
@@ -92,7 +96,7 @@ class DynCorrCalculation(CalcJob):
             comp_uuid = parent_folder.computer.uuid
             remote_path = parent_folder.get_remote_path()
             destination = "./"
-            calcinfo.local_copy_list.append((remote_path, destination, ''))
+            calcinfo.local_copy_list.append((remote_path, destination, ""))
 
         calcinfo.uuid = self.uuid
         calcinfo.cmdline_params = codeinfo.cmdline_params
@@ -119,11 +123,7 @@ class DynCorrCalculation(CalcJob):
 
     def _render_input(self, input_params):
         """Render the input file."""
-        param_order = [
-            "J",
-            "N_max",
-            "cutoff"
-        ]
+        param_order = ["J", "N_max", "cutoff"]
         ordered_params = []
         for key in param_order:
             if key in input_params:
