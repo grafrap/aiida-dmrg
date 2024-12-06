@@ -66,11 +66,13 @@ class DynCorrParser(Parser):
         try:
             # Parse the arrays
             output_matrix = self._extract_output_matrix(content)
+            if isinstance(output_matrix, ExitCode):
+                return output_matrix
         except Exception as exception:
             return self.ERROR_PARSING_OUTPUT
+        except ValidationError as exception:
+            return self.ERROR_PARSING_OUTPUT
         
-        if isinstance(output_matrix, ExitCode):
-            return output_matrix
 
         self.out("output_matrix", Dict(dict={'matrix': output_matrix}))
         return None
