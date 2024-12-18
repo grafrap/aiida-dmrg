@@ -85,7 +85,7 @@ class DynCorrCalculation(CalcJob):
         codeinfo.stdin_name = self.INPUT_FILE
         codeinfo.stdout_name = self.OUTPUT_FILE
         codeinfo.stderr_name = self.OUTPUT_FILE
-        codeinfo.withmpi = True
+        codeinfo.withmpi = False
 
         calcinfo = CalcInfo()
         calcinfo.local_copy_list = []  # Initialize as empty
