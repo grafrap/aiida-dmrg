@@ -46,7 +46,7 @@ J can be set also to a matrix, it just always has to be the same as the J of the
 pip install aiida-dmrg
 ```
 
-This installs the plugins to the AiiDA instance(to double-check, one can list all installed plugins by `verdi plugin list aiida.calculations`). After this, the DMRG codes should be set up using the plugins (https://aiida.readthedocs.io/projects/aiida-core/en/latest/). TODO: change this link
+This installs the plugins to the AiiDA instance (to double-check, one can list all installed plugins by `verdi plugin list aiida.calculations`).
 
 ## Usage
 A quick demo of how to submit a calculation:
@@ -56,6 +56,3 @@ cd examples
 # Submit test calculation (argument is the label of dmrg code)
 verdi run example_01_simple.py dmrg
 ```
-
-## For maintainers
-TODO
