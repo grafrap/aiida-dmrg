@@ -71,7 +71,7 @@ def example_dmrg(dmrg_code):
 
 
 @click.command("cli")
-@click.argument("codelabel", default="dmrg@daint-mc-julia")
+@click.argument("codelabel", default="dmrg@daint-julia")
 def cli(codelabel):
     """Click interface"""
     try:
