@@ -24,9 +24,9 @@ def test_dmrg_calculation_default(
             [
                 ("title", "Dyncorr calculation"),
                 ("comment", "Example calculation"),
-                ("J", 2),
-                ("N_max", 2000),
-                ("cutoff", 1e-6),
+                ("E_range", 2),
+                ("N", 2000),
+                ("num_points", 1000),
             ]
         )
     )
@@ -36,29 +36,8 @@ def test_dmrg_calculation_default(
             [
                 ("title", "Dyncorr calculation"),
                 ("comment", "Example calculation"),
-                ("J", 2),
-                ("N_max", 2000),
-            ]
-        )
-    )
-
-    dyncorr_parameters3 = Dict(
-        dict=OrderedDict(
-            [
-                ("title", "Dyncorr calculation"),
-                ("comment", "Example calculation"),
-                ("J", 2),
-                ("cutoff", 1e-6),
-            ]
-        )
-    )
-
-    dyncorr_parameters4 = Dict(
-        dict=OrderedDict(
-            [
-                ("title", "Dyncorr calculation"),
-                ("comment", "Example calculation"),
-                ("J", 2),
+                ("E_range", 2),
+                ("num_points", 2000),
             ]
         )
     )
@@ -84,24 +63,13 @@ def test_dmrg_calculation_default(
     inputs2 = copy(inputs1)
     inputs2["parameters"] = dyncorr_parameters2
 
-    inputs3 = copy(inputs1)
-    inputs3["parameters"] = dyncorr_parameters3
-
-    inputs4 = copy(inputs1)
-    inputs4["parameters"] = dyncorr_parameters4
-
-    expected_content1 = "2 2000 1e-06"
+    expected_content1 = "2 1000 2000"
 
     expected_content2 = "2 2000"
 
-    expected_content3 = "2 1e-06"
-
-    expected_content4 = "2"
     for inputs, expected_content in [
         (inputs1, expected_content1),
         (inputs2, expected_content2),
-        (inputs3, expected_content3),
-        (inputs4, expected_content4),
     ]:
         tmp_dir, _ = generate_calc_job(DynCorrCalculation, inputs)
         input_file_path = tmp_dir / DynCorrCalculation.INPUT_FILE

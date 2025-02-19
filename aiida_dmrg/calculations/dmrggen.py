@@ -9,8 +9,6 @@ class DMRGCalculation(CalcJob):
     """
     AiiDA calculation plugin for the DMRG code.
 
-    Template:
-    TODO
     """
 
     INPUT_FILE = "dmrg.inp"
@@ -180,6 +178,7 @@ class DMRGCalculation(CalcJob):
         param_order = [
             "S",
             "N_sites",
+            "cutoff",
             "J",
             "Sz",
             "n_excitations",

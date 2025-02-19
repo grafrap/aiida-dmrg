@@ -37,6 +37,7 @@ def example_dmrg(dmrg_code):
                 ("comment", "Example calculation"),
                 ("S", 1),
                 ("N_sites", n_sites),
+                ("cutoff", 1e-8),
                 ("J", matrix),
                 ("n_excitations", 0),
                 ("conserve_symmetry", "false"),
@@ -70,9 +71,7 @@ def example_dmrg(dmrg_code):
 
 
 @click.command("cli")
-@click.argument(
-    "codelabel", default="dmrg@daint-mc-julia"
-)  # TODO: change back to dmrg@localhost
+@click.argument("codelabel", default="dmrg@daint-mc-julia")
 def cli(codelabel):
     """Click interface"""
     try:

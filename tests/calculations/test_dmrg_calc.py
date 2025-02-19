@@ -83,6 +83,7 @@ def test_dmrg_calculation_matrix(fixture_code, generate_calc_job):
                 ("comment", "Example calculation"),
                 ("S", 1),
                 ("N_sites", n_sites),
+                ("cutoff", 1e-6),
                 ("J", matrix),
                 ("Sz", 0),
                 ("n_excitations", 0),
@@ -113,6 +114,6 @@ def test_dmrg_calculation_matrix(fixture_code, generate_calc_job):
     content_input_file = input_file_path.read_text()
     print("content of the output:", content_input_file.strip())
 
-    expected_content = """1 4 [[0, 23, 0, 0], [23, 0, 38, 0], [0, 38, 0, 23], \
-[0, 0, 23, 0]] 0 0 false true true"""
+    expected_content = """1 4 1e-06 [[0, 23, 0, 0], [23, 0, 38, 0], \
+[0, 38, 0, 23], [0, 0, 23, 0]] 0 0 false true true"""
     assert content_input_file.strip() == expected_content

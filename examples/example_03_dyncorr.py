@@ -27,6 +27,7 @@ def example_dyncorr(code):
                 ("comment", "Example calculation"),
                 ("S", 1),
                 ("N_sites", 8),
+                ("cutoff", 1e-8),
                 ("J", 2),
                 ("Sz", 0),
                 ("n_excitations", 0),
@@ -42,8 +43,9 @@ def example_dyncorr(code):
             [
                 ("title", "Dynamic correlator calculation"),
                 ("comment", "Example calculation"),
-                ("J", 2),
-                ("N_max", 200),
+                ("E_range", 4),
+                ("num_points", 2000),
+                ("N", 200),
             ]
         )
     )
@@ -51,9 +53,7 @@ def example_dyncorr(code):
     builder = DynCorrWorkChain.get_builder()
 
     builder.dmrg_code = code
-    builder.dyncorr_code = load_code(
-        "dyncorr@daint-julia"
-    )  # TODO: Change to dyncorr@localhost
+    builder.dyncorr_code = load_code("dyncorr@daint-julia")
     builder.dmrg_params = dmrg_parameters
     builder.dyncorr_params = dyncorr_parameters
     builder.options = {
@@ -86,9 +86,7 @@ def example_dyncorr(code):
 
 
 @click.command("cli")
-@click.argument(
-    "codelabel", default="dmrg@daint-julia"
-)  # TODO: change to dmrg@localhost
+@click.argument("codelabel", default="dmrg@daint-julia")
 def cli(codelabel):
     """Click interface"""
     try:
