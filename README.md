@@ -1,6 +1,6 @@
 # aiida-dmrg
 
-AiiDA plugin for the DMRG software
+AiiDA plugin for the [DMRG software](https://github.com/grafrap/DMRG_Bachelor-Arbeit)
 
 ## Features
 
