@@ -10,6 +10,7 @@ dmrg_parameters = Dict(dict=OrderedDict([
         ("title", "DMRG calculation"),
         ("comment", "Example calculation"),
         ("S", 1),
+        ("cutoff", 1e-6),
         ("N_sites", 8),
         ("J", 2),
         ("Sz", 0),
@@ -30,16 +31,16 @@ To run the Dynamic Correlator workchain, one has to add some more parameters, al
 dyncorr_parameters = Dict(dict=OrderedDict([
         ("title", "Dynamic correlator calculation"),
         ("comment", "Example calculation"),
-        ("J", 2),
-        ("N_max", 2000),
-        ("cutoff", 1e-6),
+        ("E_range", 2),
+        ("num_points", 1000),
+        ("N", 600),
     ]))
 ```
-Both `N_max` and `cutoff` are optional. If nothing is set, the default values are set as follows:
-By default `N_max`, the number of chebyshev expansion coefficients, is set to the many-body bandwidth of the hamiltonian, i.e. the difference between minimal and maximal energy. If this default bandwidth falls below a threshold of 600 expansion coefficients, `N_max` gets set to 600.
-By default `cutoff` is set to 1e-8. To get decent accuracy and still quite fast code, one should use a `cutoff` between 1e-8 and 1e-6.
 
-J can be set also to a matrix, it just always has to be the same as the J of the corresponding DMRG calculation.
+If J is given in meV, the `E_range` argument can usually be set to 2J of the corresponding DMRG calculation.\
+`num_points` defines the number of $\omega$-values for the dynamical correlator between 0 and `E_range`.\
+`N_max` is optional and gets calculated using an empirical formula if not provided. It defines the number of chebyshev expansion terms.
+
 ## Installation
 
 ```shell
