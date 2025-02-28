@@ -19,7 +19,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Framework :: AiiDA",
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 dependencies = [
     "aiida-core>=2.0.0,<3.0.0",
     "pymatgen>=2022.1.20",
